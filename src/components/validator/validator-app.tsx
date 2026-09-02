@@ -158,18 +158,18 @@ export function ValidatorApp() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
         {section === "validador" && (
-          <>
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as FlowTab)}
+            className="space-y-6"
+          >
+            <div className="rounded-xl border border-border bg-muted/40 p-3">
+              <FlowStepper steps={steps} />
+            </div>
+
             {activeTab !== "entrada" && <StatsCards stats={validator.stats} />}
 
-            <Tabs
-              value={activeTab}
-              onValueChange={(value) => setActiveTab(value as FlowTab)}
-            >
-              <div className="rounded-xl border border-border bg-muted/40 p-3">
-                <FlowStepper steps={steps} />
-              </div>
-
-              <TabsContent value="entrada" className="space-y-6">
+            <TabsContent value="entrada" className="space-y-6">
                 <div className="space-y-3">
                   <div>
                     <h2 className="text-sm font-semibold text-foreground">
@@ -221,8 +221,7 @@ export function ValidatorApp() {
                   onFinish={handleFinish}
                 />
               </TabsContent>
-            </Tabs>
-          </>
+          </Tabs>
         )}
 
         {section === "sod" && <SodAnalyzerTab />}
