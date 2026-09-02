@@ -26,10 +26,7 @@ export function FlowStepper({ steps }: { steps: FlowStep[] }) {
           <TabsTrigger
             key={step.id}
             value={step.id}
-            className={cn(
-              "flex min-w-0 flex-col items-stretch gap-2 whitespace-normal rounded-lg border-none bg-transparent px-2 py-1.5 text-left focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring data-[state=active]:border-transparent data-[state=active]:bg-transparent",
-              isLast ? "shrink-0" : "flex-1"
-            )}
+            className="flex min-w-0 flex-1 flex-col items-stretch gap-2 whitespace-normal rounded-lg border-none bg-transparent px-2 py-1.5 text-left focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring data-[state=active]:border-transparent data-[state=active]:bg-transparent"
           >
             <span className="flex items-baseline gap-1.5 leading-tight">
               <span
