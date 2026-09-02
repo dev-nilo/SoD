@@ -9,8 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { ModuleOption } from "@/types";
 
 interface ProfileSettingsBarProps {
-  profileId: string;
-  onProfileIdChange: (value: string) => void;
   profileCode: string;
   onProfileCodeChange: (value: string) => void;
   selectedModule: string;
@@ -20,8 +18,6 @@ interface ProfileSettingsBarProps {
 }
 
 export function ProfileSettingsBar({
-  profileId,
-  onProfileIdChange,
   profileCode,
   onProfileCodeChange,
   selectedModule,
@@ -30,18 +26,7 @@ export function ProfileSettingsBar({
   onRerun,
 }: ProfileSettingsBarProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-xl bg-muted/40 border border-border">
-      <div>
-        <Label htmlFor="profileId">ID do Perfil no VAR</Label>
-        <Input
-          id="profileId"
-          value={profileId}
-          onChange={(e) => onProfileIdChange(e.target.value)}
-          placeholder="Ex: 3144"
-          className="font-mono"
-        />
-      </div>
-
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-xl bg-muted/40 border border-border">
       <div>
         <Label htmlFor="profileCode">Código / Nome do Perfil</Label>
         <Input

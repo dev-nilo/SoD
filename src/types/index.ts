@@ -28,7 +28,6 @@ export interface ComparisonRow extends MatchResult {
 }
 
 export interface ImportaVarRow {
-  id: string;
   perfil: string;
   funcionalidadeId: number;
   funcionalidade: string;

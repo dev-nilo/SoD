@@ -75,8 +75,7 @@ export function ValidatorApp() {
   };
 
   const lineCount = validator.rawInputText.split("\n").filter((l) => l.trim().length > 0).length;
-  const entradaComplete =
-    lineCount > 0 && validator.profileId.trim().length > 0 && validator.profileCode.trim().length > 0;
+  const entradaComplete = lineCount > 0 && validator.profileCode.trim().length > 0;
   const comparacaoComplete = validator.results.length > 0 && validator.stats.divergent === 0 && validator.stats.notFound === 0;
   const exportarComplete = hasExported;
 
@@ -135,8 +134,6 @@ export function ValidatorApp() {
                   </div>
 
                   <ProfileSettingsBar
-                    profileId={validator.profileId}
-                    onProfileIdChange={validator.setProfileId}
                     profileCode={validator.profileCode}
                     onProfileCodeChange={validator.setProfileCode}
                     selectedModule={validator.selectedModule}

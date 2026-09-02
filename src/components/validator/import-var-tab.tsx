@@ -36,7 +36,7 @@ export function ImportVarTab({ importaVarData, onExportImportaVar }: ImportVarTa
             <Badge variant="success">{importaVarData.length} itens vinculados com sucesso</Badge>
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
-            Estrutura pronta nos padrões da aba <strong className="text-foreground">Importa VAR</strong> (Colunas: id,
+            Estrutura pronta nos padrões da aba <strong className="text-foreground">Importa VAR</strong> (Colunas:
             perfil, funcionalidade id, funcionalidade).
           </p>
         </div>
@@ -68,7 +68,6 @@ export function ImportVarTab({ importaVarData, onExportImportaVar }: ImportVarTa
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-28">id (Perfil VAR)</TableHead>
                 <TableHead className="w-44">perfil</TableHead>
                 <TableHead className="w-36">funcionalidade id</TableHead>
                 <TableHead>funcionalidade</TableHead>
@@ -77,8 +76,7 @@ export function ImportVarTab({ importaVarData, onExportImportaVar }: ImportVarTa
             <TableBody className="font-mono text-[12px]">
               {importaVarData.map((row, idx) => (
                 <TableRow key={idx}>
-                  <TableCell className="font-semibold text-foreground">{row.id}</TableCell>
-                  <TableCell className="text-foreground">{row.perfil}</TableCell>
+                  <TableCell className="font-semibold text-foreground">{row.perfil}</TableCell>
                   <TableCell className="text-foreground font-medium">{row.funcionalidadeId}</TableCell>
                   <TableCell className="text-foreground">{row.funcionalidade}</TableCell>
                 </TableRow>
