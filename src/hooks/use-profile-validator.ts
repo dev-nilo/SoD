@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { matchFunctionality } from "@/lib/match-engine";
+import { HIGH_CONFIDENCE_THRESHOLD, matchFunctionality } from "@/lib/match-engine";
 import type { ComparisonRow, FilterStatus, ImportaVarRow, ModuleOption, VarCatalogItem } from "@/types";
 
 export function useProfileValidator() {
@@ -120,10 +120,10 @@ export function useProfileValidator() {
     );
   };
 
-  const acceptAllDivergences = () => {
+  const acceptHighConfidenceDivergences = () => {
     setResults((prev) =>
       prev.map((r) => {
-        if (r.status === "Divergente" && r.matchedItem) {
+        if (r.status === "Divergente" && r.matchedItem && r.confidence >= HIGH_CONFIDENCE_THRESHOLD) {
           return {
             ...r,
             acceptedOverride: { status: "Exato (Aprovado)", matchedItem: r.matchedItem },
@@ -187,7 +187,7 @@ export function useProfileValidator() {
     importaVarData,
     executeComparison,
     acceptSuggestion,
-    acceptAllDivergences,
+    acceptHighConfidenceDivergences,
     assignManualMatch,
   };
 }

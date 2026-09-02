@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge } from "@/components/validator/status-badge";
+import { HIGH_CONFIDENCE_THRESHOLD } from "@/lib/match-engine";
 import type { ComparisonRow, FilterStatus } from "@/types";
 
 interface ComparisonTabProps {
@@ -18,7 +19,7 @@ interface ComparisonTabProps {
   onSearchQueryChange: (value: string) => void;
   stats: { exact: number; divergent: number; notFound: number };
   onAcceptSuggestion: (rowId: string) => void;
-  onAcceptAllDivergences: () => void;
+  onAcceptHighConfidenceDivergences: () => void;
   onOpenManualSelect: (row: ComparisonRow) => void;
   onExportAnalise: () => void;
 }
@@ -39,10 +40,14 @@ export function ComparisonTab({
   onSearchQueryChange,
   stats,
   onAcceptSuggestion,
-  onAcceptAllDivergences,
+  onAcceptHighConfidenceDivergences,
   onOpenManualSelect,
   onExportAnalise,
 }: ComparisonTabProps) {
+  const highConfidenceCount = results.filter(
+    (r) => r.status === "Divergente" && !r.acceptedOverride && r.confidence >= HIGH_CONFIDENCE_THRESHOLD
+  ).length;
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-muted/40 p-3.5 rounded-xl border border-border">
@@ -75,10 +80,14 @@ export function ComparisonTab({
         </div>
 
         <div className="flex items-center gap-2">
-          {stats.divergent > 0 && (
-            <Button variant="warning" onClick={onAcceptAllDivergences} title="Aprova todas as correspondências sugeridas pelo fuzzy matching">
+          {highConfidenceCount > 0 && (
+            <Button
+              variant="warning"
+              onClick={onAcceptHighConfidenceDivergences}
+              title={`Aprova as ${highConfidenceCount} divergências com confiança ≥${HIGH_CONFIDENCE_THRESHOLD}% (mesmo item do catálogo, só formatação ou código)`}
+            >
               <CheckCheck className="w-3.5 h-3.5" />
-              Aceitar Todas Divergências
+              Aceitar Alta Confiança ({highConfidenceCount})
             </Button>
           )}
 

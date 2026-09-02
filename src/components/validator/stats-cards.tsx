@@ -31,7 +31,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
 
       <Card className="p-4">
         <p className="text-xs text-warning flex items-center gap-1.5">
-          <AlertTriangle className="w-3.5 h-3.5" /> Divergências (Fuzzy)
+          <AlertTriangle className="w-3.5 h-3.5" /> Divergências
         </p>
         <p className="text-2xl font-semibold text-warning mt-1.5">{stats.divergent}</p>
       </Card>

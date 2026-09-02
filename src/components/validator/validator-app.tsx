@@ -164,7 +164,7 @@ export function ValidatorApp() {
                   onSearchQueryChange={validator.setSearchQuery}
                   stats={validator.stats}
                   onAcceptSuggestion={validator.acceptSuggestion}
-                  onAcceptAllDivergences={validator.acceptAllDivergences}
+                  onAcceptHighConfidenceDivergences={validator.acceptHighConfidenceDivergences}
                   onOpenManualSelect={setManualSelectRow}
                   onExportAnalise={() => handleExport("analise")}
                 />

@@ -5,6 +5,14 @@ import type { MatchResult, VarCatalogItem } from "@/types";
 const FUZZY_MATCH_THRESHOLD = 0.72;
 
 /**
+ * Divergências com confiança igual ou acima disso vêm de correspondências
+ * estruturais (formatação ou código hierárquico idêntico) — na prática, o
+ * mesmo item do catálogo. Abaixo disso, a confiança vem só de similaridade
+ * textual e merece revisão manual antes de aprovar.
+ */
+export const HIGH_CONFIDENCE_THRESHOLD = 90;
+
+/**
  * Motor de comparação principal: tenta casar uma linha de funcionalidade do RM
  * contra o catálogo do VAR, em ordem decrescente de rigor (exata > normalizada
  * > por código isolado > fuzzy) até encontrar uma correspondência aceitável.
