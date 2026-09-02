@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Download } from "lucide-react";
+import { Check, CheckCircle2, Copy, Download, RotateCcw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,11 @@ import type { ImportaVarRow } from "@/types";
 interface ImportVarTabProps {
   importaVarData: ImportaVarRow[];
   onExportImportaVar: () => void;
+  hasExported: boolean;
+  onFinish: () => void;
 }
 
-export function ImportVarTab({ importaVarData, onExportImportaVar }: ImportVarTabProps) {
+export function ImportVarTab({ importaVarData, onExportImportaVar, hasExported, onFinish }: ImportVarTabProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -85,6 +87,24 @@ export function ImportVarTab({ importaVarData, onExportImportaVar }: ImportVarTa
           </Table>
         </div>
       </Card>
+
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-xl border border-border bg-muted/40 p-3.5">
+        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+          {hasExported ? (
+            <>
+              <CheckCircle2 className="w-3.5 h-3.5 text-success" />
+              Arquivo baixado. Validação concluída.
+            </>
+          ) : (
+            "Baixe ou copie a planilha acima para concluir a validação."
+          )}
+        </p>
+
+        <Button variant="secondary" onClick={onFinish}>
+          <RotateCcw className="w-3.5 h-3.5" />
+          Iniciar Nova Validação
+        </Button>
+      </div>
     </div>
   );
 }

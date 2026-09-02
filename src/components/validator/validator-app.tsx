@@ -48,10 +48,20 @@ export function ValidatorApp() {
     if (type === "importa_var") setHasExported(true);
   };
 
+  const goToComparacao = (textOverride?: string) => {
+    validator.executeComparison(textOverride);
+    setActiveTab("comparacao");
+  };
+
   const applyUploadedText = (text: string) => {
     validator.setRawInputText(text);
-    validator.executeComparison(text);
-    setActiveTab("comparacao");
+    goToComparacao(text);
+  };
+
+  const handleFinish = () => {
+    validator.resetFlow();
+    setHasExported(false);
+    setActiveTab("entrada");
   };
 
   const handleFileUpload = (file: File) => {
@@ -139,17 +149,14 @@ export function ValidatorApp() {
                     selectedModule={validator.selectedModule}
                     onSelectedModuleChange={validator.setSelectedModule}
                     availableModules={validator.availableModules}
-                    onRerun={() => validator.executeComparison()}
+                    onContinue={() => goToComparacao()}
                   />
                 </div>
 
                 <InputTab
                   rawInputText={validator.rawInputText}
                   onRawInputTextChange={validator.setRawInputText}
-                  onProcessAndAnalyze={() => {
-                    validator.executeComparison();
-                    setActiveTab("comparacao");
-                  }}
+                  onProcessAndAnalyze={() => goToComparacao()}
                   onFileUpload={handleFileUpload}
                 />
               </TabsContent>
@@ -167,6 +174,7 @@ export function ValidatorApp() {
                   onAcceptHighConfidenceDivergences={validator.acceptHighConfidenceDivergences}
                   onOpenManualSelect={setManualSelectRow}
                   onExportAnalise={() => handleExport("analise")}
+                  onGoToExport={() => setActiveTab("exportar")}
                 />
               </TabsContent>
 
@@ -174,6 +182,8 @@ export function ValidatorApp() {
                 <ImportVarTab
                   importaVarData={validator.importaVarData}
                   onExportImportaVar={() => handleExport("importa_var")}
+                  hasExported={hasExported}
+                  onFinish={handleFinish}
                 />
               </TabsContent>
             </Tabs>

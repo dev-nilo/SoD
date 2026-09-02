@@ -120,6 +120,14 @@ export function useProfileValidator() {
     );
   };
 
+  const resetFlow = () => {
+    setProfileCode("");
+    setRawInputText("");
+    setResults([]);
+    setFilterStatus("ALL");
+    setSearchQuery("");
+  };
+
   const acceptHighConfidenceDivergences = () => {
     setResults((prev) =>
       prev.map((r) => {
@@ -189,6 +197,7 @@ export function useProfileValidator() {
     acceptSuggestion,
     acceptHighConfidenceDivergences,
     assignManualMatch,
+    resetFlow,
   };
 }
 

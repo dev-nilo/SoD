@@ -1,6 +1,6 @@
 "use client";
 
-import { RefreshCw } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ interface ProfileSettingsBarProps {
   selectedModule: string;
   onSelectedModuleChange: (value: string) => void;
   availableModules: ModuleOption[];
-  onRerun: () => void;
+  onContinue: () => void;
 }
 
 export function ProfileSettingsBar({
@@ -23,7 +23,7 @@ export function ProfileSettingsBar({
   selectedModule,
   onSelectedModuleChange,
   availableModules,
-  onRerun,
+  onContinue,
 }: ProfileSettingsBarProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-xl bg-muted/40 border border-border">
@@ -55,9 +55,9 @@ export function ProfileSettingsBar({
       </div>
 
       <div className="flex items-end">
-        <Button variant="secondary" onClick={onRerun} className="w-full justify-center py-2">
-          <RefreshCw className="w-4 h-4 text-primary" />
-          Re-executar Comparação
+        <Button onClick={onContinue} className="w-full justify-center py-2">
+          Continuar para Comparação
+          <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
     </div>
