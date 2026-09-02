@@ -1,26 +1,18 @@
 "use client";
 
-import { Database, Download, RefreshCw, Workflow } from "lucide-react";
+import { Workflow } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { SectionNav, type AppSection } from "@/components/validator/section-nav";
 
 interface SiteHeaderProps {
-  onLoadSample: () => void;
-  onExportImportaVar: () => void;
-  onOpenCatalog: () => void;
-  importaVarCount: number;
-  catalogCount: number;
+  section: AppSection;
+  onSectionChange: (section: AppSection) => void;
+  sectionItems: { id: AppSection; label: string; icon: typeof Workflow }[];
 }
 
-export function SiteHeader({
-  onLoadSample,
-  onExportImportaVar,
-  onOpenCatalog,
-  importaVarCount,
-  catalogCount,
-}: SiteHeaderProps) {
+export function SiteHeader({ section, onSectionChange, sectionItems }: SiteHeaderProps) {
   return (
     <header className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-40 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
       <div className="flex items-center gap-3">
@@ -28,33 +20,17 @@ export function SiteHeader({
           <Workflow className="w-[18px] h-[18px]" />
         </div>
         <div>
-          <h1 className="text-sm font-semibold text-foreground flex flex-wrap items-center gap-2">
+          <h1 className="text-sm font-semibold text-foreground">
             Validador de Perfil &amp; Gerador de Importa VAR
-            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground border border-border">
-              v2.5 Pro
-            </span>
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">Automação de De-Para e Conciliação TOTVS RM &amp; VAR</p>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-        <Button variant="secondary" onClick={onOpenCatalog}>
-          <Database className="w-3.5 h-3.5" />
-          Dicionário do VAR ({catalogCount})
-        </Button>
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <SectionNav active={section} onChange={onSectionChange} items={sectionItems} />
 
-        <Button variant="secondary" onClick={onLoadSample}>
-          <RefreshCw className="w-3.5 h-3.5" />
-          Carregar Dados de Exemplo
-        </Button>
-
-        <Button onClick={onExportImportaVar} disabled={importaVarCount === 0}>
-          <Download className="w-3.5 h-3.5" />
-          Exportar Importa VAR ({importaVarCount})
-        </Button>
-
-        <Separator orientation="vertical" className="h-6 mx-1 hidden sm:block" />
+        <Separator orientation="vertical" className="h-6 hidden sm:block" />
 
         <ThemeToggle />
       </div>

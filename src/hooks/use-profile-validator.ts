@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { SAMPLE_RM_TEXT } from "@/data/sample-rm-text";
 import { matchFunctionality } from "@/lib/match-engine";
 import type { ComparisonRow, FilterStatus, ImportaVarRow, ModuleOption, VarCatalogItem } from "@/types";
 
 export function useProfileValidator() {
   // Configuração do perfil
-  const [profileId, setProfileId] = useState("3144");
-  const [profileCode, setProfileCode] = useState("Z_COORDPERMARET");
-  const [selectedModule, setSelectedModule] = useState("2"); // 2 = TOTVS Gestão Financeira
+  const [profileId, setProfileId] = useState("");
+  const [profileCode, setProfileCode] = useState("");
+  const [selectedModule, setSelectedModule] = useState("0");
 
   // Base de dados do VAR (carregada do Postgres via /api/catalog)
   const [varCatalog, setVarCatalog] = useState<VarCatalogItem[]>([]);
@@ -18,7 +17,7 @@ export function useProfileValidator() {
   ]);
 
   // Entrada de dados RM
-  const [rawInputText, setRawInputText] = useState(SAMPLE_RM_TEXT);
+  const [rawInputText, setRawInputText] = useState("");
 
   // Estado de processamento e resultados
   const [results, setResults] = useState<ComparisonRow[]>([]);
@@ -170,14 +169,6 @@ export function useProfileValidator() {
     );
   };
 
-  const loadSampleData = () => {
-    setRawInputText(SAMPLE_RM_TEXT);
-    setProfileId("3144");
-    setProfileCode("Z_COORDPERMARET");
-    setSelectedModule("2");
-    executeComparison(SAMPLE_RM_TEXT, "2");
-  };
-
   return {
     profileId,
     setProfileId,
@@ -202,7 +193,6 @@ export function useProfileValidator() {
     acceptSuggestion,
     acceptAllDivergences,
     assignManualMatch,
-    loadSampleData,
   };
 }
 

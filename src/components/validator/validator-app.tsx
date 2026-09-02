@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Edit3, FileCheck, FileSpreadsheet, SlidersHorizontal } from "lucide-react";
+import { CheckSquare, Database, Edit3, FileCheck, FileSpreadsheet, GitCompare, ShieldAlert, SlidersHorizontal } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { CatalogTab } from "@/components/validator/catalog-tab";
@@ -11,8 +12,11 @@ import { FlowStepper, type FlowStep } from "@/components/validator/flow-stepper"
 import { ImportVarTab } from "@/components/validator/import-var-tab";
 import { InputTab } from "@/components/validator/input-tab";
 import { ManualSelectDialog } from "@/components/validator/manual-select-dialog";
+import { ProfileComparatorTab } from "@/components/validator/profile-comparator-tab";
 import { ProfileSettingsBar } from "@/components/validator/profile-settings-bar";
+import type { AppSection } from "@/components/validator/section-nav";
 import { SiteHeader } from "@/components/validator/site-header";
+import { SodAnalyzerTab } from "@/components/validator/sod-analyzer-tab";
 import { StatsCards } from "@/components/validator/stats-cards";
 import { useProfileValidator } from "@/hooks/use-profile-validator";
 import { exportToCSV } from "@/lib/csv-export";
@@ -20,8 +24,15 @@ import type { ComparisonRow } from "@/types";
 
 type FlowTab = "entrada" | "configuracao" | "comparacao" | "exportar";
 
+const SECTION_ITEMS: { id: AppSection; label: string; icon: typeof CheckSquare }[] = [
+  { id: "validador", label: "Validador", icon: CheckSquare },
+  { id: "sod", label: "Analisador SoD", icon: ShieldAlert },
+  { id: "comparador", label: "Comparador", icon: GitCompare },
+];
+
 export function ValidatorApp() {
   const validator = useProfileValidator();
+  const [section, setSection] = useState<AppSection>("validador");
   const [activeTab, setActiveTab] = useState<FlowTab>("entrada");
   const [manualSelectRow, setManualSelectRow] = useState<ComparisonRow | null>(null);
   const [catalogOpen, setCatalogOpen] = useState(false);
@@ -79,74 +90,85 @@ export function ValidatorApp() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <SiteHeader
-        onLoadSample={validator.loadSampleData}
-        onExportImportaVar={() => handleExport("importa_var")}
-        onOpenCatalog={() => setCatalogOpen(true)}
-        importaVarCount={validator.importaVarData.length}
-        catalogCount={validator.varCatalog.length}
-      />
+      <SiteHeader section={section} onSectionChange={setSection} sectionItems={SECTION_ITEMS} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
-        <StatsCards stats={validator.stats} />
-
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as FlowTab)}>
-          <FlowStepper steps={steps} />
-
-          <TabsContent value="entrada">
-            <InputTab
-              rawInputText={validator.rawInputText}
-              onRawInputTextChange={validator.setRawInputText}
-              onProcessAndAnalyze={() => {
-                validator.executeComparison();
-                setActiveTab("comparacao");
-              }}
-              onFileUpload={handleFileUpload}
-            />
-          </TabsContent>
-
-          <TabsContent value="configuracao">
-            <div className="space-y-3">
-              <div>
-                <h2 className="text-sm font-semibold text-foreground">Configuração do Perfil</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Identifique o perfil no VAR e o módulo TOTVS usado para a comparação.
-                </p>
-              </div>
-
-              <ProfileSettingsBar
-                profileId={validator.profileId}
-                onProfileIdChange={validator.setProfileId}
-                profileCode={validator.profileCode}
-                onProfileCodeChange={validator.setProfileCode}
-                selectedModule={validator.selectedModule}
-                onSelectedModuleChange={validator.setSelectedModule}
-                availableModules={validator.availableModules}
-                onRerun={() => validator.executeComparison()}
-              />
+        {section === "validador" && (
+          <>
+            <div className="flex justify-end">
+              <Button variant="secondary" onClick={() => setCatalogOpen(true)}>
+                <Database className="w-3.5 h-3.5" />
+                Dicionário do VAR ({validator.varCatalog.length})
+              </Button>
             </div>
-          </TabsContent>
 
-          <TabsContent value="comparacao">
-            <ComparisonTab
-              results={validator.results}
-              filteredResults={validator.filteredResults}
-              filterStatus={validator.filterStatus}
-              onFilterStatusChange={validator.setFilterStatus}
-              searchQuery={validator.searchQuery}
-              onSearchQueryChange={validator.setSearchQuery}
-              stats={validator.stats}
-              onAcceptSuggestion={validator.acceptSuggestion}
-              onAcceptAllDivergences={validator.acceptAllDivergences}
-              onOpenManualSelect={setManualSelectRow}
-              onExportAnalise={() => handleExport("analise")}
-            />
-          </TabsContent>
+            <StatsCards stats={validator.stats} />
 
-          <TabsContent value="exportar">
-            <ImportVarTab importaVarData={validator.importaVarData} onExportImportaVar={() => handleExport("importa_var")} />
-          </TabsContent>
-        </Tabs>
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as FlowTab)}>
+              <FlowStepper steps={steps} />
+
+              <TabsContent value="entrada">
+                <InputTab
+                  rawInputText={validator.rawInputText}
+                  onRawInputTextChange={validator.setRawInputText}
+                  onProcessAndAnalyze={() => {
+                    validator.executeComparison();
+                    setActiveTab("comparacao");
+                  }}
+                  onFileUpload={handleFileUpload}
+                />
+              </TabsContent>
+
+              <TabsContent value="configuracao">
+                <div className="space-y-3">
+                  <div>
+                    <h2 className="text-sm font-semibold text-foreground">Configuração do Perfil</h2>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Identifique o perfil no VAR e o módulo TOTVS usado para a comparação.
+                    </p>
+                  </div>
+
+                  <ProfileSettingsBar
+                    profileId={validator.profileId}
+                    onProfileIdChange={validator.setProfileId}
+                    profileCode={validator.profileCode}
+                    onProfileCodeChange={validator.setProfileCode}
+                    selectedModule={validator.selectedModule}
+                    onSelectedModuleChange={validator.setSelectedModule}
+                    availableModules={validator.availableModules}
+                    onRerun={() => validator.executeComparison()}
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="comparacao">
+                <ComparisonTab
+                  results={validator.results}
+                  filteredResults={validator.filteredResults}
+                  filterStatus={validator.filterStatus}
+                  onFilterStatusChange={validator.setFilterStatus}
+                  searchQuery={validator.searchQuery}
+                  onSearchQueryChange={validator.setSearchQuery}
+                  stats={validator.stats}
+                  onAcceptSuggestion={validator.acceptSuggestion}
+                  onAcceptAllDivergences={validator.acceptAllDivergences}
+                  onOpenManualSelect={setManualSelectRow}
+                  onExportAnalise={() => handleExport("analise")}
+                />
+              </TabsContent>
+
+              <TabsContent value="exportar">
+                <ImportVarTab
+                  importaVarData={validator.importaVarData}
+                  onExportImportaVar={() => handleExport("importa_var")}
+                />
+              </TabsContent>
+            </Tabs>
+          </>
+        )}
+
+        {section === "sod" && <SodAnalyzerTab />}
+        {section === "comparador" && <ProfileComparatorTab />}
       </main>
 
       <ManualSelectDialog
