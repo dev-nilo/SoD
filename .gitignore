@@ -25,3 +25,6 @@ yarn-error.log*
 *.tsbuildinfo
 .vercel
 .env*
+
+# local sample files for building parsers (not for commit)
+/samples

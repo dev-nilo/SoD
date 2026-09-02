@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckSquare, Database, Edit3, FileCheck, FileSpreadsheet, GitCompare, ShieldAlert, SlidersHorizontal } from "lucide-react";
+import { CheckSquare, Database, Edit3, FileCheck, FileSpreadsheet, GitCompare, ShieldAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -22,7 +22,7 @@ import { useProfileValidator } from "@/hooks/use-profile-validator";
 import { exportToCSV } from "@/lib/csv-export";
 import type { ComparisonRow } from "@/types";
 
-type FlowTab = "entrada" | "configuracao" | "comparacao" | "exportar";
+type FlowTab = "entrada" | "comparacao" | "exportar";
 
 const SECTION_ITEMS: { id: AppSection; label: string; icon: typeof CheckSquare }[] = [
   { id: "validador", label: "Validador", icon: CheckSquare },
@@ -61,8 +61,8 @@ export function ValidatorApp() {
   };
 
   const lineCount = validator.rawInputText.split("\n").filter((l) => l.trim().length > 0).length;
-  const entradaComplete = lineCount > 0;
-  const configuracaoComplete = validator.profileId.trim().length > 0 && validator.profileCode.trim().length > 0;
+  const entradaComplete =
+    lineCount > 0 && validator.profileId.trim().length > 0 && validator.profileCode.trim().length > 0;
   const comparacaoComplete = validator.results.length > 0 && validator.stats.divergent === 0 && validator.stats.notFound === 0;
   const exportarComplete = hasExported;
 
@@ -70,8 +70,7 @@ export function ValidatorApp() {
     activeTab === id ? "current" : complete ? "complete" : "pending";
 
   const steps: FlowStep[] = [
-    { id: "entrada", label: "Entrada", icon: Edit3, state: stepState("entrada", entradaComplete) },
-    { id: "configuracao", label: "Configuração", icon: SlidersHorizontal, state: stepState("configuracao", configuracaoComplete) },
+    { id: "entrada", label: "Entrada & Configuração", icon: Edit3, state: stepState("entrada", entradaComplete) },
     {
       id: "comparacao",
       label: "Comparação",
@@ -107,19 +106,7 @@ export function ValidatorApp() {
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as FlowTab)}>
               <FlowStepper steps={steps} />
 
-              <TabsContent value="entrada">
-                <InputTab
-                  rawInputText={validator.rawInputText}
-                  onRawInputTextChange={validator.setRawInputText}
-                  onProcessAndAnalyze={() => {
-                    validator.executeComparison();
-                    setActiveTab("comparacao");
-                  }}
-                  onFileUpload={handleFileUpload}
-                />
-              </TabsContent>
-
-              <TabsContent value="configuracao">
+              <TabsContent value="entrada" className="space-y-6">
                 <div className="space-y-3">
                   <div>
                     <h2 className="text-sm font-semibold text-foreground">Configuração do Perfil</h2>
@@ -139,6 +126,16 @@ export function ValidatorApp() {
                     onRerun={() => validator.executeComparison()}
                   />
                 </div>
+
+                <InputTab
+                  rawInputText={validator.rawInputText}
+                  onRawInputTextChange={validator.setRawInputText}
+                  onProcessAndAnalyze={() => {
+                    validator.executeComparison();
+                    setActiveTab("comparacao");
+                  }}
+                  onFileUpload={handleFileUpload}
+                />
               </TabsContent>
 
               <TabsContent value="comparacao">

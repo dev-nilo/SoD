@@ -23,13 +23,18 @@ async function main() {
     moduleId: item.moduleId,
   }));
 
-  await db
-    .insert(varCatalogItems)
-    .values(itemRows)
-    .onConflictDoUpdate({
-      target: varCatalogItems.id,
-      set: { code: sql`excluded.code`, name: sql`excluded.name`, moduleId: sql`excluded.module_id` },
-    });
+  const BATCH_SIZE = 500;
+  for (let i = 0; i < itemRows.length; i += BATCH_SIZE) {
+    const batch = itemRows.slice(i, i + BATCH_SIZE);
+    await db
+      .insert(varCatalogItems)
+      .values(batch)
+      .onConflictDoUpdate({
+        target: varCatalogItems.id,
+        set: { code: sql`excluded.code`, name: sql`excluded.name`, moduleId: sql`excluded.module_id` },
+      });
+    console.log(`  ...${Math.min(i + BATCH_SIZE, itemRows.length)}/${itemRows.length} itens`);
+  }
 
   console.log(`Seeded ${moduleRows.length} modules and ${itemRows.length} catalog items.`);
 }
