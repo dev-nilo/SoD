@@ -156,7 +156,6 @@ export function ValidatorApp() {
                 <InputTab
                   rawInputText={validator.rawInputText}
                   onRawInputTextChange={validator.setRawInputText}
-                  onProcessAndAnalyze={() => goToComparacao()}
                   onFileUpload={handleFileUpload}
                 />
               </TabsContent>

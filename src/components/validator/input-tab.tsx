@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, FileText, HelpCircle, Trash2, UploadCloud } from "lucide-react";
+import { FileText, HelpCircle, Trash2, UploadCloud } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,11 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 interface InputTabProps {
   rawInputText: string;
   onRawInputTextChange: (value: string) => void;
-  onProcessAndAnalyze: () => void;
   onFileUpload: (file: File) => void;
 }
 
-export function InputTab({ rawInputText, onRawInputTextChange, onProcessAndAnalyze, onFileUpload }: InputTabProps) {
+export function InputTab({ rawInputText, onRawInputTextChange, onFileUpload }: InputTabProps) {
   const lineCount = rawInputText.split("\n").filter((l) => l.trim().length > 0).length;
 
   return (
@@ -34,15 +33,10 @@ export function InputTab({ rawInputText, onRawInputTextChange, onProcessAndAnaly
           placeholder="Cole aqui a lista de funcionalidades copiada da coluna A da aba Funcionalidades - RM..."
         />
 
-        <div className="flex items-center justify-between">
+        <div>
           <Button variant="destructive" onClick={() => onRawInputTextChange("")}>
             <Trash2 className="w-3.5 h-3.5" />
             Limpar Caixa
-          </Button>
-
-          <Button onClick={onProcessAndAnalyze}>
-            Processar e Analisar
-            <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
       </div>
