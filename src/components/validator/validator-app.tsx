@@ -159,7 +159,7 @@ export function ValidatorApp() {
       <main className="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
         {section === "validador" && (
           <>
-            <StatsCards stats={validator.stats} />
+            {activeTab !== "entrada" && <StatsCards stats={validator.stats} />}
 
             <Tabs
               value={activeTab}
