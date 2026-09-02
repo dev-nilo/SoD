@@ -2,7 +2,6 @@
 
 import { FileText, HelpCircle, Trash2, UploadCloud } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -23,7 +22,20 @@ export function InputTab({ rawInputText, onRawInputTextChange, onFileUpload }: I
             <FileText className="w-4 h-4 text-primary" />
             Lista de Funcionalidades do RM (1 por linha)
           </label>
-          <span className="text-xs text-muted-foreground">{lineCount} linhas identificadas</span>
+
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground">{lineCount} linhas identificadas</span>
+            {rawInputText.length > 0 && (
+              <button
+                type="button"
+                onClick={() => onRawInputTextChange("")}
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
+              >
+                <Trash2 className="w-3 h-3" />
+                Limpar
+              </button>
+            )}
+          </div>
         </div>
 
         <Textarea
@@ -32,13 +44,6 @@ export function InputTab({ rawInputText, onRawInputTextChange, onFileUpload }: I
           rows={16}
           placeholder="Cole aqui a lista de funcionalidades copiada da coluna A da aba Funcionalidades - RM..."
         />
-
-        <div>
-          <Button variant="destructive" onClick={() => onRawInputTextChange("")}>
-            <Trash2 className="w-3.5 h-3.5" />
-            Limpar Caixa
-          </Button>
-        </div>
       </div>
 
       <div className="space-y-4">

@@ -17,17 +17,37 @@ export interface FlowStep {
 
 export function FlowStepper({ steps }: { steps: FlowStep[] }) {
   return (
-    <TabsList className="flex h-auto w-full items-stretch border-none bg-transparent p-0 gap-0">
+    <TabsList className="flex h-auto w-full items-start border-none bg-transparent p-0 gap-0">
       {steps.map((step, index) => {
         const Icon = step.icon;
         const isLast = index === steps.length - 1;
 
         return (
-          <div key={step.id} className="flex flex-1 items-center last:flex-none">
-            <TabsTrigger
-              value={step.id}
-              className="flex shrink-0 items-center gap-2.5 whitespace-normal rounded-lg border-none bg-transparent px-2 py-1.5 text-left focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring data-[state=active]:border-transparent data-[state=active]:bg-transparent"
-            >
+          <TabsTrigger
+            key={step.id}
+            value={step.id}
+            className={cn(
+              "flex min-w-0 flex-col items-stretch gap-2 whitespace-normal rounded-lg border-none bg-transparent px-2 py-1.5 text-left focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring data-[state=active]:border-transparent data-[state=active]:bg-transparent",
+              isLast ? "shrink-0" : "flex-1"
+            )}
+          >
+            <span className="flex items-baseline gap-1.5 leading-tight">
+              <span
+                className={cn(
+                  "text-sm font-semibold",
+                  step.state === "pending" && "text-muted-foreground",
+                  step.state === "current" && "text-foreground",
+                  step.state === "complete" && "text-foreground"
+                )}
+              >
+                {step.label}
+              </span>
+              {typeof step.badge === "number" && step.badge > 0 && (
+                <span className="text-[11px] text-muted-foreground">({step.badge})</span>
+              )}
+            </span>
+
+            <span className="flex items-center">
               <span
                 className={cn(
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-colors",
@@ -43,33 +63,17 @@ export function FlowStepper({ steps }: { steps: FlowStep[] }) {
                 )}
               </span>
 
-              <span className="flex flex-col items-start leading-tight">
+              {!isLast && (
                 <span
                   className={cn(
-                    "text-xs font-semibold",
-                    step.state === "pending" && "text-muted-foreground",
-                    step.state === "current" && "text-foreground",
-                    step.state === "complete" && "text-foreground"
+                    "ml-2 h-px flex-1 min-w-6 transition-colors",
+                    step.state === "complete" ? "bg-success" : "bg-border"
                   )}
-                >
-                  {step.label}
-                </span>
-                {typeof step.badge === "number" && step.badge > 0 && (
-                  <span className="text-[11px] text-muted-foreground">{step.badge} itens</span>
-                )}
-              </span>
-            </TabsTrigger>
-
-            {!isLast && (
-              <div
-                className={cn(
-                  "mx-2 h-px flex-1 min-w-6 transition-colors",
-                  step.state === "complete" ? "bg-success" : "bg-border"
-                )}
-                aria-hidden
-              />
-            )}
-          </div>
+                  aria-hidden
+                />
+              )}
+            </span>
+          </TabsTrigger>
         );
       })}
     </TabsList>
