@@ -1,14 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import { CheckSquare, Database, Edit3, FileCheck, FileSpreadsheet, GitCompare, ShieldAlert } from "lucide-react";
+import {
+  CheckSquare,
+  Database,
+  Edit3,
+  FileCheck,
+  FileSpreadsheet,
+  GitCompare,
+  ShieldAlert,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { CatalogTab } from "@/components/validator/catalog-tab";
 import { ComparisonTab } from "@/components/validator/comparison-tab";
-import { FlowStepper, type FlowStep } from "@/components/validator/flow-stepper";
+import {
+  FlowStepper,
+  type FlowStep,
+} from "@/components/validator/flow-stepper";
 import { ImportVarTab } from "@/components/validator/import-var-tab";
 import { InputTab } from "@/components/validator/input-tab";
 import { ManualSelectDialog } from "@/components/validator/manual-select-dialog";
@@ -25,7 +42,11 @@ import type { ComparisonRow } from "@/types";
 
 type FlowTab = "entrada" | "comparacao" | "exportar";
 
-const SECTION_ITEMS: { id: AppSection; label: string; icon: typeof CheckSquare }[] = [
+const SECTION_ITEMS: {
+  id: AppSection;
+  label: string;
+  icon: typeof CheckSquare;
+}[] = [
   { id: "validador", label: "Validador", icon: CheckSquare },
   { id: "sod", label: "Analisador SoD", icon: ShieldAlert },
   { id: "comparador", label: "Comparador", icon: GitCompare },
@@ -35,7 +56,9 @@ export function ValidatorApp() {
   const validator = useProfileValidator();
   const [section, setSection] = useState<AppSection>("validador");
   const [activeTab, setActiveTab] = useState<FlowTab>("entrada");
-  const [manualSelectRow, setManualSelectRow] = useState<ComparisonRow | null>(null);
+  const [manualSelectRow, setManualSelectRow] = useState<ComparisonRow | null>(
+    null,
+  );
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [hasExported, setHasExported] = useState(false);
 
@@ -69,7 +92,11 @@ export function ValidatorApp() {
       parseSpreadsheetFile(file)
         .then(applyUploadedText)
         .catch((err) => {
-          window.alert(err instanceof Error ? err.message : "Falha ao processar a planilha.");
+          window.alert(
+            err instanceof Error
+              ? err.message
+              : "Falha ao processar a planilha.",
+          );
         });
       return;
     }
@@ -84,16 +111,27 @@ export function ValidatorApp() {
     reader.readAsText(file);
   };
 
-  const lineCount = validator.rawInputText.split("\n").filter((l) => l.trim().length > 0).length;
-  const entradaComplete = lineCount > 0 && validator.profileCode.trim().length > 0;
-  const comparacaoComplete = validator.results.length > 0 && validator.stats.divergent === 0 && validator.stats.notFound === 0;
+  const lineCount = validator.rawInputText
+    .split("\n")
+    .filter((l) => l.trim().length > 0).length;
+  const entradaComplete =
+    lineCount > 0 && validator.profileCode.trim().length > 0;
+  const comparacaoComplete =
+    validator.results.length > 0 &&
+    validator.stats.divergent === 0 &&
+    validator.stats.notFound === 0;
   const exportarComplete = hasExported;
 
   const stepState = (id: FlowTab, complete: boolean): FlowStep["state"] =>
     activeTab === id ? "current" : complete ? "complete" : "pending";
 
   const steps: FlowStep[] = [
-    { id: "entrada", label: "Entrada & Configuração", icon: Edit3, state: stepState("entrada", entradaComplete) },
+    {
+      id: "entrada",
+      label: "Entrada & Configuração",
+      icon: Edit3,
+      state: stepState("entrada", entradaComplete),
+    },
     {
       id: "comparacao",
       label: "Comparação",
@@ -112,14 +150,21 @@ export function ValidatorApp() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <SiteHeader section={section} onSectionChange={setSection} sectionItems={SECTION_ITEMS} />
+      <SiteHeader
+        section={section}
+        onSectionChange={setSection}
+        sectionItems={SECTION_ITEMS}
+      />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
         {section === "validador" && (
           <>
             <StatsCards stats={validator.stats} />
 
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as FlowTab)}>
+            <Tabs
+              value={activeTab}
+              onValueChange={(value) => setActiveTab(value as FlowTab)}
+            >
               <div className="flex flex-col lg:flex-row lg:items-center gap-3 rounded-xl border border-border bg-muted/40 p-3">
                 <div className="flex-1 min-w-0">
                   <FlowStepper steps={steps} />
@@ -137,10 +182,9 @@ export function ValidatorApp() {
               <TabsContent value="entrada" className="space-y-6">
                 <div className="space-y-3">
                   <div>
-                    <h2 className="text-sm font-semibold text-foreground">Configuração do Perfil</h2>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Identifique o perfil no VAR e o módulo TOTVS usado para a comparação.
-                    </p>
+                    <h2 className="text-sm font-semibold text-foreground">
+                      Configuração do Perfil
+                    </h2>
                   </div>
 
                   <ProfileSettingsBar
@@ -170,7 +214,9 @@ export function ValidatorApp() {
                   onSearchQueryChange={validator.setSearchQuery}
                   stats={validator.stats}
                   onAcceptSuggestion={validator.acceptSuggestion}
-                  onAcceptHighConfidenceDivergences={validator.acceptHighConfidenceDivergences}
+                  onAcceptHighConfidenceDivergences={
+                    validator.acceptHighConfidenceDivergences
+                  }
                   onOpenManualSelect={setManualSelectRow}
                   onExportAnalise={() => handleExport("analise")}
                   onGoToExport={() => setActiveTab("exportar")}
@@ -209,11 +255,16 @@ export function ValidatorApp() {
         <SheetContent className="p-0">
           <SheetHeader>
             <SheetTitle>Dicionário do VAR</SheetTitle>
-            <SheetDescription>Catálogo de referência das funcionalidades mapeadas no VAR.</SheetDescription>
+            <SheetDescription>
+              Catálogo de referência das funcionalidades mapeadas no VAR.
+            </SheetDescription>
           </SheetHeader>
 
           <div className="flex-1 overflow-y-auto p-4">
-            <CatalogTab varCatalog={validator.varCatalog} onAddEntry={validator.addCatalogEntry} />
+            <CatalogTab
+              varCatalog={validator.varCatalog}
+              onAddEntry={validator.addCatalogEntry}
+            />
           </div>
         </SheetContent>
       </Sheet>
