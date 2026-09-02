@@ -3,7 +3,6 @@
 import { useState } from "react";
 import {
   CheckSquare,
-  Database,
   Edit3,
   FileCheck,
   FileSpreadsheet,
@@ -11,7 +10,6 @@ import {
   ShieldAlert,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
   Sheet,
@@ -154,6 +152,8 @@ export function ValidatorApp() {
         section={section}
         onSectionChange={setSection}
         sectionItems={SECTION_ITEMS}
+        varCatalogCount={validator.varCatalog.length}
+        onOpenCatalog={() => setCatalogOpen(true)}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
@@ -165,18 +165,8 @@ export function ValidatorApp() {
               value={activeTab}
               onValueChange={(value) => setActiveTab(value as FlowTab)}
             >
-              <div className="flex flex-col lg:flex-row lg:items-center gap-3 rounded-xl border border-border bg-muted/40 p-3">
-                <div className="flex-1 min-w-0">
-                  <FlowStepper steps={steps} />
-                </div>
-                <Button
-                  variant="secondary"
-                  className="shrink-0 self-start lg:self-center"
-                  onClick={() => setCatalogOpen(true)}
-                >
-                  <Database className="w-3.5 h-3.5" />
-                  Dicionário do VAR ({validator.varCatalog.length})
-                </Button>
+              <div className="rounded-xl border border-border bg-muted/40 p-3">
+                <FlowStepper steps={steps} />
               </div>
 
               <TabsContent value="entrada" className="space-y-6">

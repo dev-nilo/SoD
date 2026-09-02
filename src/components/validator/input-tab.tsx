@@ -16,14 +16,14 @@ export function InputTab({ rawInputText, onRawInputTextChange, onFileUpload }: I
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 space-y-3">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold text-foreground flex items-center gap-2">
+      <Card className="lg:col-span-2">
+        <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
+          <CardTitle className="flex items-center gap-2">
             <FileText className="w-4 h-4 text-primary" />
             Lista de Funcionalidades do RM (1 por linha)
-          </label>
+          </CardTitle>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <span className="text-xs text-muted-foreground">{lineCount} linhas identificadas</span>
             {rawInputText.length > 0 && (
               <button
@@ -36,15 +36,17 @@ export function InputTab({ rawInputText, onRawInputTextChange, onFileUpload }: I
               </button>
             )}
           </div>
-        </div>
+        </CardHeader>
 
-        <Textarea
-          value={rawInputText}
-          onChange={(e) => onRawInputTextChange(e.target.value)}
-          rows={16}
-          placeholder="Cole aqui a lista de funcionalidades copiada da coluna A da aba Funcionalidades - RM..."
-        />
-      </div>
+        <CardContent>
+          <Textarea
+            value={rawInputText}
+            onChange={(e) => onRawInputTextChange(e.target.value)}
+            rows={16}
+            placeholder="Cole aqui a lista de funcionalidades copiada da coluna A da aba Funcionalidades - RM..."
+          />
+        </CardContent>
+      </Card>
 
       <div className="space-y-4">
         <Card>

@@ -1,7 +1,8 @@
 "use client";
 
-import { Workflow } from "lucide-react";
+import { Database, Workflow } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -13,12 +14,16 @@ interface SiteHeaderProps {
   section: AppSection;
   onSectionChange: (section: AppSection) => void;
   sectionItems: { id: AppSection; label: string; icon: typeof Workflow }[];
+  varCatalogCount: number;
+  onOpenCatalog: () => void;
 }
 
 export function SiteHeader({
   section,
   onSectionChange,
   sectionItems,
+  varCatalogCount,
+  onOpenCatalog,
 }: SiteHeaderProps) {
   return (
     <header className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-40 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
@@ -39,6 +44,13 @@ export function SiteHeader({
           onChange={onSectionChange}
           items={sectionItems}
         />
+
+        <Separator orientation="vertical" className="h-6 hidden sm:block" />
+
+        <Button variant="secondary" onClick={onOpenCatalog}>
+          <Database className="w-3.5 h-3.5" />
+          Dicionário do VAR ({varCatalogCount})
+        </Button>
 
         <Separator orientation="vertical" className="h-6 hidden sm:block" />
 
