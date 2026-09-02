@@ -1,8 +1,10 @@
 "use client";
 
-import { Database, Download, RefreshCw, Sparkles } from "lucide-react";
+import { Database, Download, RefreshCw, Workflow } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface SiteHeaderProps {
   onLoadSample: () => void;
@@ -20,10 +22,10 @@ export function SiteHeader({
   catalogCount,
 }: SiteHeaderProps) {
   return (
-    <header className="border-b border-border bg-card/60 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+    <header className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-40 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
       <div className="flex items-center gap-3">
-        <div className="h-9 w-9 shrink-0 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center text-primary shadow-sm">
-          <Sparkles className="w-5 h-5" />
+        <div className="h-9 w-9 shrink-0 rounded-lg bg-muted border border-border flex items-center justify-center text-foreground">
+          <Workflow className="w-[18px] h-[18px]" />
         </div>
         <div>
           <h1 className="text-sm font-semibold text-foreground flex flex-wrap items-center gap-2">
@@ -32,7 +34,7 @@ export function SiteHeader({
               v2.5 Pro
             </span>
           </h1>
-          <p className="text-xs text-muted-foreground">Automação de De-Para e Conciliação TOTVS RM &amp; VAR</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Automação de De-Para e Conciliação TOTVS RM &amp; VAR</p>
         </div>
       </div>
 
@@ -51,6 +53,10 @@ export function SiteHeader({
           <Download className="w-3.5 h-3.5" />
           Exportar Importa VAR ({importaVarCount})
         </Button>
+
+        <Separator orientation="vertical" className="h-6 mx-1 hidden sm:block" />
+
+        <ThemeToggle />
       </div>
     </header>
   );

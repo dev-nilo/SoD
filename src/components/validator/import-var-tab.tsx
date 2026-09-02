@@ -30,7 +30,7 @@ export function ImportVarTab({ importaVarData, onExportImportaVar }: ImportVarTa
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-card/40 p-4 rounded-xl border border-border">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-muted/40 p-4 rounded-xl border border-border">
         <div>
           <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
             Planilha de Carga do VAR
@@ -78,9 +78,9 @@ export function ImportVarTab({ importaVarData, onExportImportaVar }: ImportVarTa
             <TableBody className="font-mono text-[12px]">
               {importaVarData.map((row, idx) => (
                 <TableRow key={idx}>
-                  <TableCell className="font-semibold">{row.id}</TableCell>
-                  <TableCell className="text-success font-medium">{row.perfil}</TableCell>
-                  <TableCell className="text-warning font-bold">{row.funcionalidadeId}</TableCell>
+                  <TableCell className="font-semibold text-foreground">{row.id}</TableCell>
+                  <TableCell className="text-foreground">{row.perfil}</TableCell>
+                  <TableCell className="text-foreground font-medium">{row.funcionalidadeId}</TableCell>
                   <TableCell className="text-foreground">{row.funcionalidade}</TableCell>
                 </TableRow>
               ))}

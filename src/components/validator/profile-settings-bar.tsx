@@ -30,7 +30,7 @@ export function ProfileSettingsBar({
   onRerun,
 }: ProfileSettingsBarProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-xl bg-card/50 border border-border shadow-sm">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-xl bg-muted/40 border border-border">
       <div>
         <Label htmlFor="profileId">ID do Perfil no VAR</Label>
         <Input

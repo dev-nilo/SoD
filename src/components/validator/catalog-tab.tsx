@@ -34,10 +34,10 @@ export function CatalogTab({ varCatalog, onAddEntry }: CatalogTabProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-card/40 p-3 rounded-xl border border-border">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-muted/40 p-3.5 rounded-xl border border-border">
         <div className="flex items-center gap-2">
-          <Database className="w-4 h-4 text-primary" />
-          <span className="text-xs font-semibold text-foreground">Catálogo Master de Funcionalidades do VAR</span>
+          <Database className="w-4 h-4 text-foreground" />
+          <span className="text-sm font-semibold text-foreground">Catálogo Master de Funcionalidades do VAR</span>
           <Badge>{varCatalog.length} funcionalidades mapeadas</Badge>
         </div>
 
@@ -61,7 +61,7 @@ export function CatalogTab({ varCatalog, onAddEntry }: CatalogTabProps) {
             <TableBody className="font-mono text-[12px]">
               {varCatalog.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className="font-bold text-warning">{item.id}</TableCell>
+                  <TableCell className="font-semibold text-foreground">{item.id}</TableCell>
                   <TableCell className="text-foreground font-sans">{item.name}</TableCell>
                   <TableCell className="text-muted-foreground">{item.moduleId}</TableCell>
                   <TableCell className="text-muted-foreground font-sans">{item.moduleName}</TableCell>

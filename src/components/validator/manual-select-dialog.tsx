@@ -44,7 +44,7 @@ export function ManualSelectDialog({ row, varCatalog, onOpenChange, onSelect }: 
           <DialogDescription>Original: {row?.rawInput}</DialogDescription>
         </DialogHeader>
 
-        <div className="p-4 border-b border-border bg-background/50">
+        <div className="p-4 border-b border-border">
           <div className="relative">
             <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-2.5" />
             <Input
@@ -62,15 +62,13 @@ export function ManualSelectDialog({ row, varCatalog, onOpenChange, onSelect }: 
             <div
               key={item.id}
               onClick={() => row && onSelect(row.rowId, item)}
-              className="p-3 rounded-xl hover:bg-accent/60 border border-transparent hover:border-border cursor-pointer transition-colors flex items-center justify-between group"
+              className="p-3 rounded-xl hover:bg-accent border border-transparent hover:border-border cursor-pointer transition-colors flex items-center justify-between group"
             >
               <div>
-                <div className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
-                  {item.name}
-                </div>
-                <div className="text-[11px] text-muted-foreground mt-0.5">Módulo: {item.moduleName}</div>
+                <div className="text-sm font-semibold text-foreground">{item.name}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">Módulo: {item.moduleName}</div>
               </div>
-              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded bg-background border border-border text-warning">
+              <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-muted border border-border text-foreground">
                 ID: {item.id}
               </span>
             </div>

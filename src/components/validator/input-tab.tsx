@@ -60,8 +60,8 @@ export function InputTab({ rawInputText, onRawInputTextChange, onProcessAndAnaly
               Importe diretamente a lista de funcionalidades exportada do RM ou planilha de perfil.
             </p>
 
-            <label className="flex flex-col items-center justify-center border-2 border-dashed border-border hover:border-primary/50 rounded-xl p-6 cursor-pointer bg-background/40 hover:bg-accent/30 transition-all text-center group">
-              <UploadCloud className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
+            <label className="flex flex-col items-center justify-center border-2 border-dashed border-border hover:border-foreground/30 rounded-xl p-6 cursor-pointer hover:bg-accent transition-colors text-center group">
+              <UploadCloud className="w-8 h-8 text-muted-foreground group-hover:text-foreground transition-colors" />
               <span className="text-xs font-medium text-foreground mt-2">Clique para selecionar</span>
               <span className="text-[10px] text-muted-foreground">ou arraste o arquivo até aqui</span>
               <input
@@ -77,10 +77,10 @@ export function InputTab({ rawInputText, onRawInputTextChange, onProcessAndAnaly
           </CardContent>
         </Card>
 
-        <Card className="bg-card/20">
+        <Card className="bg-muted/40 shadow-none">
           <CardContent className="space-y-2.5 text-xs text-muted-foreground pt-4">
             <h5 className="font-semibold text-foreground flex items-center gap-1.5">
-              <HelpCircle className="w-3.5 h-3.5 text-primary" />
+              <HelpCircle className="w-3.5 h-3.5" />
               Instruções &amp; Dicas do Processo
             </h5>
             <ul className="space-y-1.5 list-disc list-inside text-[11px] leading-relaxed">
