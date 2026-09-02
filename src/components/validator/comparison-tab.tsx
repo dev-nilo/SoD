@@ -95,8 +95,8 @@ export function ComparisonTab({
             <TableRow>
               <TableHead className="w-12 text-center">#</TableHead>
               <TableHead className="w-36">Status</TableHead>
-              <TableHead>Funcionalidade Original (RM)</TableHead>
-              <TableHead>Funcionalidade Sugerida (VAR)</TableHead>
+              <TableHead className="min-w-[200px]">Funcionalidade Original (RM)</TableHead>
+              <TableHead className="min-w-[260px]">Funcionalidade Sugerida (VAR)</TableHead>
               <TableHead className="w-24">ID VAR</TableHead>
               <TableHead className="w-28 text-center">Ações</TableHead>
             </TableRow>

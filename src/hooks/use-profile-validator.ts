@@ -23,13 +23,16 @@ export function useProfileValidator() {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const executeComparison = () => {
-    const lines = rawInputText
+  const executeComparison = (textOverride?: string, moduleOverride?: string) => {
+    const text = textOverride ?? rawInputText;
+    const activeModule = moduleOverride ?? selectedModule;
+
+    const lines = text
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line.length > 0);
 
-    const moduleId = selectedModule === "0" ? null : selectedModule;
+    const moduleId = activeModule === "0" ? null : activeModule;
     const evaluated: ComparisonRow[] = lines.map((line, index) => {
       const match = matchFunctionality(line, varCatalog, moduleId)!;
       return {
@@ -139,6 +142,7 @@ export function useProfileValidator() {
     setProfileId("3144");
     setProfileCode("Z_COORDPERMARET");
     setSelectedModule("2");
+    executeComparison(SAMPLE_RM_TEXT, "2");
   };
 
   return {

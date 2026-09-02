@@ -42,6 +42,7 @@ export function ValidatorApp() {
       const text = event.target?.result;
       if (typeof text === "string") {
         validator.setRawInputText(text);
+        validator.executeComparison(text);
         setActiveTab("comparacao");
       }
     };
@@ -121,7 +122,7 @@ export function ValidatorApp() {
                 selectedModule={validator.selectedModule}
                 onSelectedModuleChange={validator.setSelectedModule}
                 availableModules={validator.availableModules}
-                onRerun={validator.executeComparison}
+                onRerun={() => validator.executeComparison()}
               />
             </div>
           </TabsContent>
