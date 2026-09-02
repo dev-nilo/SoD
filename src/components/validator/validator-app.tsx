@@ -20,6 +20,7 @@ import { SodAnalyzerTab } from "@/components/validator/sod-analyzer-tab";
 import { StatsCards } from "@/components/validator/stats-cards";
 import { useProfileValidator } from "@/hooks/use-profile-validator";
 import { exportToCSV } from "@/lib/csv-export";
+import { parseSpreadsheetFile } from "@/lib/xlsx-import";
 import type { ComparisonRow } from "@/types";
 
 type FlowTab = "entrada" | "comparacao" | "exportar";
@@ -47,14 +48,27 @@ export function ValidatorApp() {
     if (type === "importa_var") setHasExported(true);
   };
 
+  const applyUploadedText = (text: string) => {
+    validator.setRawInputText(text);
+    validator.executeComparison(text);
+    setActiveTab("comparacao");
+  };
+
   const handleFileUpload = (file: File) => {
+    if (/\.xlsx?$/i.test(file.name)) {
+      parseSpreadsheetFile(file)
+        .then(applyUploadedText)
+        .catch((err) => {
+          window.alert(err instanceof Error ? err.message : "Falha ao processar a planilha.");
+        });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result;
       if (typeof text === "string") {
-        validator.setRawInputText(text);
-        validator.executeComparison(text);
-        setActiveTab("comparacao");
+        applyUploadedText(text);
       }
     };
     reader.readAsText(file);
@@ -94,17 +108,22 @@ export function ValidatorApp() {
       <main className="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
         {section === "validador" && (
           <>
-            <div className="flex justify-end">
-              <Button variant="secondary" onClick={() => setCatalogOpen(true)}>
-                <Database className="w-3.5 h-3.5" />
-                Dicionário do VAR ({validator.varCatalog.length})
-              </Button>
-            </div>
-
             <StatsCards stats={validator.stats} />
 
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as FlowTab)}>
-              <FlowStepper steps={steps} />
+              <div className="flex flex-col lg:flex-row lg:items-center gap-3 rounded-xl border border-border bg-muted/40 p-3">
+                <div className="flex-1 min-w-0">
+                  <FlowStepper steps={steps} />
+                </div>
+                <Button
+                  variant="secondary"
+                  className="shrink-0 self-start lg:self-center"
+                  onClick={() => setCatalogOpen(true)}
+                >
+                  <Database className="w-3.5 h-3.5" />
+                  Dicionário do VAR ({validator.varCatalog.length})
+                </Button>
+              </div>
 
               <TabsContent value="entrada" className="space-y-6">
                 <div className="space-y-3">

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { copyToClipboard } from "@/lib/csv-export";
+import { buildImportaVarRows, copyToClipboard } from "@/lib/csv-export";
 import type { ImportaVarRow } from "@/types";
 
 interface ImportVarTabProps {
@@ -19,10 +19,9 @@ export function ImportVarTab({ importaVarData, onExportImportaVar }: ImportVarTa
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    const tsv = [
-      ["id", "perfil", "funcionalidade id", "funcionalidade"].join("\t"),
-      ...importaVarData.map((r) => [r.id, r.perfil, r.funcionalidadeId, r.funcionalidade].join("\t")),
-    ].join("\n");
+    const tsv = buildImportaVarRows(importaVarData)
+      .map((row) => row.join("\t"))
+      .join("\n");
     await copyToClipboard(tsv);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

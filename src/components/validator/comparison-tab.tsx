@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, CheckCheck, Download, Search } from "lucide-react";
+import { ArrowRight, Check, CheckCheck, Download, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -96,6 +96,7 @@ export function ComparisonTab({
               <TableHead className="w-12 text-center">#</TableHead>
               <TableHead className="w-36">Status</TableHead>
               <TableHead className="min-w-[200px]">Funcionalidade Original (RM)</TableHead>
+              <TableHead className="w-8 hidden lg:table-cell" aria-hidden />
               <TableHead className="min-w-[260px]">Funcionalidade Sugerida (VAR)</TableHead>
               <TableHead className="w-24">ID VAR</TableHead>
               <TableHead className="w-28 text-center">Ações</TableHead>
@@ -104,7 +105,7 @@ export function ComparisonTab({
           <TableBody>
             {filteredResults.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">
                   Nenhum registro encontrado para os filtros selecionados.
                 </TableCell>
               </TableRow>
@@ -125,14 +126,22 @@ export function ComparisonTab({
                       {row.rawInput}
                     </TableCell>
 
+                    <TableCell className="hidden lg:table-cell text-center text-muted-foreground">
+                      <ArrowRight className="w-3.5 h-3.5 inline" />
+                    </TableCell>
+
                     <TableCell>
                       {matched ? (
-                        <div>
-                          <span className="font-mono text-[12px] text-foreground font-medium">{matched.name}</span>
-                          <div className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1">
-                            <span>Módulo:</span> {matched.moduleName}
-                            {row.reason && <span className="hidden lg:inline">• {row.reason}</span>}
-                          </div>
+                        <div className="space-y-1">
+                          <span className="font-mono text-[12px] text-foreground font-medium block">
+                            {matched.name}
+                          </span>
+                          <span className="inline-block rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                            {matched.moduleName}
+                          </span>
+                          {row.reason && (
+                            <p className="text-[11px] text-muted-foreground italic">{row.reason}</p>
+                          )}
                         </div>
                       ) : (
                         <span className="text-muted-foreground italic">Nenhum correspondente no catálogo</span>

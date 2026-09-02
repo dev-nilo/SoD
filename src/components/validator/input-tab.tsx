@@ -52,7 +52,7 @@ export function InputTab({ rawInputText, onRawInputTextChange, onProcessAndAnaly
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <UploadCloud className="w-4 h-4 text-primary" />
-              Carregar de Arquivo (.csv / .txt)
+              Carregar de Arquivo (.xlsx / .csv / .txt)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -66,7 +66,7 @@ export function InputTab({ rawInputText, onRawInputTextChange, onProcessAndAnaly
               <span className="text-[10px] text-muted-foreground">ou arraste o arquivo até aqui</span>
               <input
                 type="file"
-                accept=".csv,.txt,.tsv"
+                accept=".xlsx,.xls,.csv,.txt,.tsv"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) onFileUpload(file);

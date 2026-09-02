@@ -12,13 +12,22 @@ export function downloadFile(content: string, fileName: string, mimeType: string
   URL.revokeObjectURL(url);
 }
 
+const IMPORTA_VAR_HEADERS = ["id", "perfil", "funcionalidade id", "funcionalidade"];
+
+export function buildImportaVarRows(importaVarData: ImportaVarRow[]): string[][] {
+  return [
+    IMPORTA_VAR_HEADERS,
+    ...importaVarData.map((row) => [String(row.id), row.perfil, String(row.funcionalidadeId), row.funcionalidade]),
+  ];
+}
+
 function buildImportaVarCsv(importaVarData: ImportaVarRow[]): string {
-  let csv = "id,perfil,funcionalidade id,funcionalidade\r\n";
-  importaVarData.forEach((row) => {
-    const escapedName = `"${row.funcionalidade.replace(/"/g, '""')}"`;
-    csv += `${row.id},${row.perfil},${row.funcionalidadeId},${escapedName}\r\n`;
-  });
-  return csv;
+  // Tab-delimited: matches the "Copiar para Excel" clipboard format, which is the
+  // format the VAR importer actually accepts (a comma-delimited file lands in a
+  // single column under pt-BR locale settings).
+  return buildImportaVarRows(importaVarData)
+    .map((row) => row.join("\t"))
+    .join("\r\n");
 }
 
 function buildAnaliseCsv(results: ComparisonRow[]): string {
