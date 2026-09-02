@@ -50,11 +50,6 @@ export function ComparisonTab({
     (r) => r.status === "Divergente" && !r.acceptedOverride && r.confidence >= HIGH_CONFIDENCE_THRESHOLD
   ).length;
 
-  const pendingCount = results.filter((r) => {
-    const effectiveStatus = r.acceptedOverride ? r.acceptedOverride.status : r.status;
-    return effectiveStatus === "Divergente" || effectiveStatus === "Não Encontrado";
-  }).length;
-
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-muted/40 p-3.5 rounded-xl border border-border">
@@ -101,6 +96,11 @@ export function ComparisonTab({
           <Button variant="secondary" onClick={onExportAnalise}>
             <Download className="w-3.5 h-3.5" />
             Exportar Análise (.csv)
+          </Button>
+
+          <Button onClick={onGoToExport}>
+            Ir para Exportar
+            <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
       </div>
@@ -204,19 +204,6 @@ export function ComparisonTab({
           </TableBody>
         </Table>
       </Card>
-
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-xl border border-border bg-muted/40 p-3.5">
-        <p className="text-xs text-muted-foreground">
-          {pendingCount > 0
-            ? `${pendingCount} ${pendingCount === 1 ? "item ainda precisa" : "itens ainda precisam"} de revisão antes de exportar.`
-            : "Todos os itens foram resolvidos. Pronto para exportar."}
-        </p>
-
-        <Button onClick={onGoToExport}>
-          Ir para Exportar
-          <ArrowRight className="w-4 h-4" />
-        </Button>
-      </div>
     </div>
   );
 }
