@@ -54,7 +54,11 @@ export function SodAnalysisTab() {
             </p>
           )}
 
-          {analysis.profileRows.length > 0 && (
+          {analysis.profileRows.length > 0 && analysis.loadingReferenceData && (
+            <p className="text-xs text-muted-foreground">Carregando catálogo VAR e matriz de riscos...</p>
+          )}
+
+          {analysis.profileRows.length > 0 && !analysis.loadingReferenceData && (
             <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
               <span className="font-semibold text-foreground">{analysis.profileName}</span>
               <span>{analysis.profileRows.length} funcionalidades no relatório</span>
@@ -73,7 +77,7 @@ export function SodAnalysisTab() {
         </CardContent>
       </Card>
 
-      {analysis.profileRows.length > 0 && (
+      {analysis.profileRows.length > 0 && !analysis.loadingReferenceData && (
         <Card>
           <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
             <div>

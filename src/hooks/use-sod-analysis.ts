@@ -14,7 +14,7 @@ import type { ProfileFunctionalityRow, SodActivity, SodRisk, SodRiskMappings } f
  * only ever need this hook.
  */
 export function useSodAnalysis() {
-  const { varCatalog } = useVarCatalog();
+  const { varCatalog, loading: loadingCatalog } = useVarCatalog();
 
   const [risks, setRisks] = useState<SodRisk[]>([]);
   const [activities, setActivities] = useState<SodActivity[]>([]);
@@ -76,7 +76,11 @@ export function useSodAnalysis() {
   const curatedRiskCount = risks.filter((r) => (mappings[r.id]?.length ?? 0) > 0).length;
 
   return {
-    loadingMatrix,
+    // Whether the catalog and risk matrix are both in — matching and risk
+    // evaluation give misleadingly low numbers (everything unmatched, 0
+    // curated risks) until both have landed, so callers gate their results
+    // display on this rather than showing those numbers mid-fetch.
+    loadingReferenceData: loadingCatalog || loadingMatrix,
     risks,
     curatedRiskCount,
     fileName,

@@ -13,6 +13,7 @@ const DEFAULT_MODULES: ModuleOption[] = [{ id: "0", name: "Todos os Módulos (Se
 export function useVarCatalog() {
   const [varCatalog, setVarCatalog] = useState<VarCatalogItem[]>([]);
   const [availableModules, setAvailableModules] = useState<ModuleOption[]>(DEFAULT_MODULES);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -23,7 +24,10 @@ export function useVarCatalog() {
         setVarCatalog(data.items);
         setAvailableModules(data.modules);
       })
-      .catch((err) => console.error("Falha ao carregar catálogo do VAR:", err));
+      .catch((err) => console.error("Falha ao carregar catálogo do VAR:", err))
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
@@ -48,5 +52,5 @@ export function useVarCatalog() {
     );
   };
 
-  return { varCatalog, availableModules, addCatalogEntry };
+  return { varCatalog, availableModules, addCatalogEntry, loading };
 }
