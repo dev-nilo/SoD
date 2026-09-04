@@ -55,3 +55,29 @@ export interface SodActivity {
 
 /** riskId -> activity ids curated as jointly configuring that risk. */
 export type SodRiskMappings = Record<string, number[]>;
+
+/** One functionality line from a profile report (e.g. Vennx Access export). */
+export interface ProfileFunctionalityRow {
+  perfil: string;
+  sistema: string;
+  funcionalidade: string;
+  status: string;
+}
+
+/** A profile functionality row once matched against the VAR catalog. */
+export interface MatchedProfileFunctionality {
+  item: VarCatalogItem;
+  status: string;
+}
+
+export interface TriggeredRiskMatch {
+  activity: SodActivity;
+  functionality: VarCatalogItem;
+  status: string;
+}
+
+/** One concrete combination of profile functionalities that satisfies every activity a risk requires. */
+export interface TriggeredRisk {
+  risk: SodRisk;
+  matches: TriggeredRiskMatch[];
+}
