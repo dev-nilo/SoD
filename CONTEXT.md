@@ -16,6 +16,10 @@ _Avoid_: dictionary, database.
 One RM Functionality paired with its best match (if any) from the VAR Catalog, plus a Status and an Override.
 _Avoid_: result, item, entry.
 
+**Comparison Session**:
+The current run's full set of Comparison Rows for one Profile, plus the actions that turn one row's Status into `Exato` (see Override). Built fresh from RM input text and the VAR Catalog; independent of how the VAR Catalog itself is loaded.
+_Avoid_: validator state, results.
+
 **Status**:
 A Comparison Row's current truth: `Exato` (matched, correct), `Divergente` (matched, but the RM text differs from the catalog entry), or `Não Encontrado` (no acceptable match). Always reflects the row as it stands right now — never shadowed by a separate "what the user did" value.
 _Avoid_: state, match status.
