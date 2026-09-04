@@ -35,7 +35,8 @@ import { SodAnalyzerTab } from "@/components/validator/sod-analyzer-tab";
 import { useProfileValidator } from "@/hooks/use-profile-validator";
 import { countFunctionalityLines, selectIsSessionResolved } from "@/lib/comparison-session";
 import { exportToXLSX } from "@/lib/csv-export";
-import { looksLikeSpreadsheet, parseSpreadsheetFile } from "@/lib/xlsx-import";
+import { looksLikeXlsx, readTextFile } from "@/lib/file-import";
+import { parseSpreadsheetFile } from "@/lib/xlsx-import";
 import type { ComparisonRow } from "@/types";
 
 type FlowTab = "entrada" | "comparacao" | "exportar";
@@ -85,27 +86,15 @@ export function ValidatorApp() {
   };
 
   const handleFileUpload = (file: File) => {
-    if (looksLikeSpreadsheet(file)) {
-      parseSpreadsheetFile(file)
-        .then(applyUploadedText)
-        .catch((err) => {
-          window.alert(
-            err instanceof Error
-              ? err.message
-              : "Falha ao processar a planilha.",
-          );
-        });
-      return;
-    }
+    const parsed = looksLikeXlsx(file)
+      ? parseSpreadsheetFile(file)
+      : readTextFile(file);
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result;
-      if (typeof text === "string") {
-        applyUploadedText(text);
-      }
-    };
-    reader.readAsText(file);
+    parsed.then(applyUploadedText).catch((err) => {
+      window.alert(
+        err instanceof Error ? err.message : "Falha ao processar o arquivo.",
+      );
+    });
   };
 
   const entradaComplete =

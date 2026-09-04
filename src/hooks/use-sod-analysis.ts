@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { useVarCatalog } from "@/hooks/use-var-catalog";
+import { loadResource } from "@/lib/async-resource";
 import { parseProfileReport } from "@/lib/profile-report-import";
 import { analyzeProfileRisks, matchProfileFunctionalities, selectRisksWithAddedFunctionality } from "@/lib/sod-analysis";
 import type { ProfileFunctionalityRow, SodActivity, SodRisk, SodRiskMappings } from "@/types";
@@ -14,31 +15,33 @@ import type { ProfileFunctionalityRow, SodActivity, SodRisk, SodRiskMappings } f
  * only ever need this hook.
  */
 export function useSodAnalysis() {
-  const { varCatalog, loading: loadingCatalog } = useVarCatalog();
+  const { varCatalog, loading: loadingCatalog, error: catalogError } = useVarCatalog();
 
   const [risks, setRisks] = useState<SodRisk[]>([]);
   const [activities, setActivities] = useState<SodActivity[]>([]);
   const [mappings, setMappings] = useState<SodRiskMappings>({});
   const [loadingMatrix, setLoadingMatrix] = useState(true);
+  const [matrixError, setMatrixError] = useState<unknown>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/sod-risks")
-      .then((res) => res.json())
-      .then((data: { risks: SodRisk[]; activities: SodActivity[]; mappings: SodRiskMappings }) => {
-        if (cancelled) return;
-        setRisks(data.risks);
-        setActivities(data.activities);
-        setMappings(data.mappings);
-      })
-      .catch((err) => console.error("Falha ao carregar a matriz de riscos SoD:", err))
-      .finally(() => {
-        if (!cancelled) setLoadingMatrix(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  useEffect(
+    () =>
+      loadResource<{ risks: SodRisk[]; activities: SodActivity[]; mappings: SodRiskMappings }>(
+        () => fetch("/api/sod-risks").then((res) => res.json()),
+        {
+          onData: (data) => {
+            setRisks(data.risks);
+            setActivities(data.activities);
+            setMappings(data.mappings);
+          },
+          onError: (err) => {
+            console.error("Falha ao carregar a matriz de riscos SoD:", err);
+            setMatrixError(err);
+          },
+          onSettled: () => setLoadingMatrix(false),
+        }
+      ),
+    []
+  );
 
   const [profileRows, setProfileRows] = useState<ProfileFunctionalityRow[]>([]);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -81,6 +84,7 @@ export function useSodAnalysis() {
     // curated risks) until both have landed, so callers gate their results
     // display on this rather than showing those numbers mid-fetch.
     loadingReferenceData: loadingCatalog || loadingMatrix,
+    referenceDataError: catalogError ?? matrixError,
     risks,
     curatedRiskCount,
     fileName,

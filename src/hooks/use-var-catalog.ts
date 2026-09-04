@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { loadResource } from "@/lib/async-resource";
 import type { ModuleOption, VarCatalogItem } from "@/types";
 
 const DEFAULT_MODULES: ModuleOption[] = [{ id: "0", name: "Todos os Módulos (Sem Filtro)" }];
@@ -14,24 +15,26 @@ export function useVarCatalog() {
   const [varCatalog, setVarCatalog] = useState<VarCatalogItem[]>([]);
   const [availableModules, setAvailableModules] = useState<ModuleOption[]>(DEFAULT_MODULES);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<unknown>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/catalog")
-      .then((res) => res.json())
-      .then((data: { items: VarCatalogItem[]; modules: ModuleOption[] }) => {
-        if (cancelled) return;
-        setVarCatalog(data.items);
-        setAvailableModules(data.modules);
-      })
-      .catch((err) => console.error("Falha ao carregar catálogo do VAR:", err))
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  useEffect(
+    () =>
+      loadResource<{ items: VarCatalogItem[]; modules: ModuleOption[] }>(
+        () => fetch("/api/catalog").then((res) => res.json()),
+        {
+          onData: (data) => {
+            setVarCatalog(data.items);
+            setAvailableModules(data.modules);
+          },
+          onError: (err) => {
+            console.error("Falha ao carregar catálogo do VAR:", err);
+            setError(err);
+          },
+          onSettled: () => setLoading(false),
+        }
+      ),
+    []
+  );
 
   const addCatalogEntry = async (entry: VarCatalogItem) => {
     const res = await fetch("/api/catalog", {
@@ -52,5 +55,5 @@ export function useVarCatalog() {
     );
   };
 
-  return { varCatalog, availableModules, addCatalogEntry, loading };
+  return { varCatalog, availableModules, addCatalogEntry, loading, error };
 }

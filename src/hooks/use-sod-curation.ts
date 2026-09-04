@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { loadResource } from "@/lib/async-resource";
 import * as SodCuration from "@/lib/sod-curation";
 import type { SodCurationFilter } from "@/lib/sod-curation";
 import type { SodActivity, SodRisk, SodRiskMappings } from "@/types";
@@ -17,6 +18,7 @@ export function useSodCuration() {
   const [activities, setActivities] = useState<SodActivity[]>([]);
   const [mappings, setMappings] = useState<SodRiskMappings>({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<unknown>(null);
 
   const [selectedRiskId, setSelectedRiskId] = useState<string | null>(null);
   const [draftActivityIds, setDraftActivityIds] = useState<number[]>([]);
@@ -26,24 +28,25 @@ export function useSodCuration() {
   const [riskSearchQuery, setRiskSearchQuery] = useState("");
   const [activitySearchQuery, setActivitySearchQuery] = useState("");
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/sod-risks")
-      .then((res) => res.json())
-      .then((data: { risks: SodRisk[]; activities: SodActivity[]; mappings: SodRiskMappings }) => {
-        if (cancelled) return;
-        setRisks(data.risks);
-        setActivities(data.activities);
-        setMappings(data.mappings);
-      })
-      .catch((err) => console.error("Falha ao carregar riscos de SoD:", err))
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  useEffect(
+    () =>
+      loadResource<{ risks: SodRisk[]; activities: SodActivity[]; mappings: SodRiskMappings }>(
+        () => fetch("/api/sod-risks").then((res) => res.json()),
+        {
+          onData: (data) => {
+            setRisks(data.risks);
+            setActivities(data.activities);
+            setMappings(data.mappings);
+          },
+          onError: (err) => {
+            console.error("Falha ao carregar riscos de SoD:", err);
+            setError(err);
+          },
+          onSettled: () => setLoading(false),
+        }
+      ),
+    []
+  );
 
   const stats = useMemo(() => SodCuration.selectStats(risks, mappings), [risks, mappings]);
 
@@ -95,6 +98,7 @@ export function useSodCuration() {
 
   return {
     loading,
+    error,
     risks,
     activities,
     mappings,

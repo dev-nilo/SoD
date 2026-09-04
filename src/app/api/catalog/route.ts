@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getDb } from "@/db";
 import { modules, varCatalogItems } from "@/db/schema";
-import type { ModuleOption, VarCatalogItem } from "@/types";
+import { toAvailableModules } from "@/lib/catalog-modules";
+import type { VarCatalogItem } from "@/types";
 
 export async function GET() {
   const db = getDb();
@@ -22,12 +23,7 @@ export async function GET() {
     db.select().from(modules).orderBy(modules.id),
   ]);
 
-  const availableModules: ModuleOption[] = [
-    ...moduleRows.map((m) => ({ id: String(m.id), name: m.name })),
-    { id: "0", name: "Todos os Módulos (Sem Filtro)" },
-  ];
-
-  return NextResponse.json({ items, modules: availableModules });
+  return NextResponse.json({ items, modules: toAvailableModules(moduleRows) });
 }
 
 export async function POST(request: NextRequest) {

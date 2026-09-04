@@ -1,10 +1,7 @@
+import { readWorkbookRows } from "@/lib/file-import";
 import type { ProfileFunctionalityRow } from "@/types";
 
 const REQUIRED_HEADERS = ["Perfil", "Sistema", "Funcionalidade", "Status"];
-
-export function looksLikeProfileReport(file: File): boolean {
-  return /\.xlsx?$/i.test(file.name);
-}
 
 /**
  * Pulls just the functionality table out of a profile report (e.g. a Vennx
@@ -44,26 +41,6 @@ export function extractProfileRows(rows: unknown[][]): ProfileFunctionalityRow[]
 }
 
 export async function parseProfileReport(file: File): Promise<ProfileFunctionalityRow[]> {
-  const XLSX = await import("xlsx");
-
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const data = event.target?.result;
-        if (!(data instanceof ArrayBuffer)) {
-          reject(new Error("Falha ao ler o arquivo."));
-          return;
-        }
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, blankrows: false, defval: "" });
-        resolve(extractProfileRows(rows));
-      } catch (err) {
-        reject(err instanceof Error ? err : new Error("Falha ao processar o relatório."));
-      }
-    };
-    reader.onerror = () => reject(new Error("Falha ao ler o arquivo."));
-    reader.readAsArrayBuffer(file);
-  });
+  const rows = await readWorkbookRows(file);
+  return extractProfileRows(rows);
 }
