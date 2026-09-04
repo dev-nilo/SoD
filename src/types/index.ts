@@ -16,15 +16,12 @@ export interface MatchResult {
   reason: string;
 }
 
-export interface AcceptedOverride {
-  status: string;
-  matchedItem: VarCatalogItem;
-}
+export type OverrideKind = "aprovado" | "manual";
 
 export interface ComparisonRow extends MatchResult {
   rowId: string;
   originalIndex: number;
-  acceptedOverride: AcceptedOverride | null;
+  override: OverrideKind | null;
 }
 
 export interface ImportaVarRow {

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { HIGH_CONFIDENCE_THRESHOLD, matchFunctionality } from "@/lib/match-engine";
+import { applyOverride } from "@/lib/comparison-row";
+import { isHighConfidenceDivergence, matchFunctionality } from "@/lib/match-engine";
 import type { ComparisonRow, FilterStatus, ImportaVarRow, ModuleOption, VarCatalogItem } from "@/types";
 
 export function useProfileValidator() {
@@ -40,7 +41,7 @@ export function useProfileValidator() {
         rowId: `row-${index}`,
         originalIndex: index + 1,
         ...match,
-        acceptedOverride: null,
+        override: null,
       };
     });
 
@@ -71,22 +72,19 @@ export function useProfileValidator() {
 
   const stats = useMemo(() => {
     const total = results.length;
-    const exact = results.filter((r) => (r.acceptedOverride ? r.acceptedOverride.status === "Exato" : r.status === "Exato")).length;
-    const divergent = results.filter((r) => (r.acceptedOverride ? r.acceptedOverride.status === "Divergente" : r.status === "Divergente")).length;
-    const notFound = results.filter((r) => (r.acceptedOverride ? false : r.status === "Não Encontrado")).length;
+    const exact = results.filter((r) => r.status === "Exato").length;
+    const divergent = results.filter((r) => r.status === "Divergente").length;
+    const notFound = results.filter((r) => r.status === "Não Encontrado").length;
     const successRate = total > 0 ? Math.round(((exact + divergent) / total) * 100) : 0;
     return { total, exact, divergent, notFound, successRate };
   }, [results]);
 
   const filteredResults = useMemo(() => {
     return results.filter((item) => {
-      const currentStatus = item.acceptedOverride ? item.acceptedOverride.status : item.status;
-      const effectiveName = item.acceptedOverride ? item.acceptedOverride.matchedItem.name : item.matchedItem?.name ?? "";
-
-      const matchesFilter = filterStatus === "ALL" || currentStatus === filterStatus;
+      const matchesFilter = filterStatus === "ALL" || item.status === filterStatus;
       const matchesSearch =
         item.rawInput.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        effectiveName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item.matchedItem?.name.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
         (item.matchedItem?.id !== undefined && String(item.matchedItem.id).includes(searchQuery));
 
       return matchesFilter && matchesSearch;
@@ -96,13 +94,12 @@ export function useProfileValidator() {
   const importaVarData: ImportaVarRow[] = useMemo(() => {
     return results
       .map((item) => {
-        const matched = item.acceptedOverride?.matchedItem ?? item.matchedItem;
-        if (!matched) return null;
+        if (!item.matchedItem) return null;
         return {
           id: profileId,
           perfil: profileCode || "PERFIL_SEM_NOME",
-          funcionalidadeId: matched.id,
-          funcionalidade: matched.name,
+          funcionalidadeId: item.matchedItem.id,
+          funcionalidade: item.matchedItem.name,
         };
       })
       .filter((row): row is ImportaVarRow => row !== null);
@@ -110,15 +107,7 @@ export function useProfileValidator() {
 
   const acceptSuggestion = (rowId: string) => {
     setResults((prev) =>
-      prev.map((r) => {
-        if (r.rowId === rowId && r.matchedItem) {
-          return {
-            ...r,
-            acceptedOverride: { status: "Exato (Aprovado)", matchedItem: r.matchedItem },
-          };
-        }
-        return r;
-      })
+      prev.map((r) => (r.rowId === rowId && r.matchedItem ? applyOverride(r, r.matchedItem, "aprovado") : r))
     );
   };
 
@@ -133,30 +122,12 @@ export function useProfileValidator() {
 
   const acceptHighConfidenceDivergences = () => {
     setResults((prev) =>
-      prev.map((r) => {
-        if (r.status === "Divergente" && r.matchedItem && r.confidence >= HIGH_CONFIDENCE_THRESHOLD) {
-          return {
-            ...r,
-            acceptedOverride: { status: "Exato (Aprovado)", matchedItem: r.matchedItem },
-          };
-        }
-        return r;
-      })
+      prev.map((r) => (isHighConfidenceDivergence(r) && r.matchedItem ? applyOverride(r, r.matchedItem, "aprovado") : r))
     );
   };
 
   const assignManualMatch = (rowId: string, item: VarCatalogItem) => {
-    setResults((prev) =>
-      prev.map((r) => {
-        if (r.rowId === rowId) {
-          return {
-            ...r,
-            acceptedOverride: { status: "Exato (Manual)", matchedItem: item },
-          };
-        }
-        return r;
-      })
-    );
+    setResults((prev) => prev.map((r) => (r.rowId === rowId ? applyOverride(r, item, "manual") : r)));
   };
 
   const addCatalogEntry = async (entry: VarCatalogItem) => {

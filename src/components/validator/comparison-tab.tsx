@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge } from "@/components/validator/status-badge";
-import { HIGH_CONFIDENCE_THRESHOLD } from "@/lib/match-engine";
+import { isHighConfidenceDivergence } from "@/lib/match-engine";
 import type { ComparisonRow, FilterStatus } from "@/types";
 
 interface ComparisonTabProps {
@@ -44,9 +44,7 @@ export function ComparisonTab({
   onOpenManualSelect,
   onGoToExport,
 }: ComparisonTabProps) {
-  const highConfidenceCount = results.filter(
-    (r) => r.status === "Divergente" && !r.acceptedOverride && r.confidence >= HIGH_CONFIDENCE_THRESHOLD
-  ).length;
+  const highConfidenceCount = results.filter(isHighConfidenceDivergence).length;
 
   return (
     <div className="space-y-4">
@@ -84,7 +82,7 @@ export function ComparisonTab({
             <Button
               variant="warning"
               onClick={onAcceptHighConfidenceDivergences}
-              title={`Aprova as ${highConfidenceCount} divergências com confiança ≥${HIGH_CONFIDENCE_THRESHOLD}% (mesmo item do catálogo, só formatação ou código)`}
+              title={`Aprova as ${highConfidenceCount} divergências de alta confiança (mesmo item do catálogo, só formatação ou código)`}
             >
               <CheckCheck className="w-3.5 h-3.5" />
               Aceitar Alta Confiança ({highConfidenceCount})
@@ -120,15 +118,14 @@ export function ComparisonTab({
               </TableRow>
             ) : (
               filteredResults.map((row) => {
-                const effectiveStatus = row.acceptedOverride ? row.acceptedOverride.status : row.status;
-                const matched = row.acceptedOverride?.matchedItem ?? row.matchedItem;
+                const matched = row.matchedItem;
 
                 return (
                   <TableRow key={row.rowId}>
                     <TableCell className="text-center text-muted-foreground font-mono">{row.originalIndex}</TableCell>
 
                     <TableCell>
-                      <StatusBadge status={effectiveStatus} confidence={row.confidence} />
+                      <StatusBadge status={row.status} override={row.override} confidence={row.confidence} />
                     </TableCell>
 
                     <TableCell className="text-foreground font-mono text-[12px] whitespace-pre-line">
@@ -169,7 +166,7 @@ export function ComparisonTab({
 
                     <TableCell>
                       <div className="flex items-center justify-center gap-1">
-                        {row.status === "Divergente" && !row.acceptedOverride && (
+                        {row.status === "Divergente" && (
                           <Button
                             variant="success"
                             size="icon"

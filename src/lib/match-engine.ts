@@ -1,6 +1,6 @@
 import { canonicalKey } from "@/lib/normalize";
 import { calculateSimilarity } from "@/lib/similarity";
-import type { MatchResult, VarCatalogItem } from "@/types";
+import type { ComparisonRow, MatchResult, VarCatalogItem } from "@/types";
 
 const FUZZY_MATCH_THRESHOLD = 0.72;
 
@@ -10,7 +10,16 @@ const FUZZY_MATCH_THRESHOLD = 0.72;
  * mesmo item do catálogo. Abaixo disso, a confiança vem só de similaridade
  * textual e merece revisão manual antes de aprovar.
  */
-export const HIGH_CONFIDENCE_THRESHOLD = 90;
+const HIGH_CONFIDENCE_THRESHOLD = 90;
+
+/**
+ * Elegível para aprovação em lote: uma divergência ainda não resolvida cuja
+ * confiança bate o piso estrutural acima. Uma vez aceita, a linha já vira
+ * "Exato" e para de ser elegível — não é preciso checar proveniência aqui.
+ */
+export function isHighConfidenceDivergence(row: ComparisonRow): boolean {
+  return row.status === "Divergente" && row.confidence >= HIGH_CONFIDENCE_THRESHOLD;
+}
 
 /**
  * Motor de comparação principal: tenta casar uma linha de funcionalidade do RM
