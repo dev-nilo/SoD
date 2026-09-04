@@ -33,8 +33,9 @@ import type { AppSection } from "@/components/validator/section-nav";
 import { SiteHeader } from "@/components/validator/site-header";
 import { SodAnalyzerTab } from "@/components/validator/sod-analyzer-tab";
 import { useProfileValidator } from "@/hooks/use-profile-validator";
+import { countFunctionalityLines, selectIsSessionResolved } from "@/lib/comparison-session";
 import { exportToXLSX } from "@/lib/csv-export";
-import { parseSpreadsheetFile } from "@/lib/xlsx-import";
+import { looksLikeSpreadsheet, parseSpreadsheetFile } from "@/lib/xlsx-import";
 import type { ComparisonRow } from "@/types";
 
 type FlowTab = "entrada" | "comparacao" | "exportar";
@@ -84,7 +85,7 @@ export function ValidatorApp() {
   };
 
   const handleFileUpload = (file: File) => {
-    if (/\.xlsx?$/i.test(file.name)) {
+    if (looksLikeSpreadsheet(file)) {
       parseSpreadsheetFile(file)
         .then(applyUploadedText)
         .catch((err) => {
@@ -107,15 +108,10 @@ export function ValidatorApp() {
     reader.readAsText(file);
   };
 
-  const lineCount = validator.rawInputText
-    .split("\n")
-    .filter((l) => l.trim().length > 0).length;
   const entradaComplete =
-    lineCount > 0 && validator.profileCode.trim().length > 0;
-  const comparacaoComplete =
-    validator.results.length > 0 &&
-    validator.stats.divergent === 0 &&
-    validator.stats.notFound === 0;
+    countFunctionalityLines(validator.rawInputText) > 0 &&
+    validator.profileCode.trim().length > 0;
+  const comparacaoComplete = selectIsSessionResolved(validator.results);
   const exportarComplete = hasExported;
 
   const stepState = (id: FlowTab, complete: boolean): FlowStep["state"] =>

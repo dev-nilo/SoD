@@ -1,4 +1,12 @@
 /**
+ * Whether a file should go through parseSpreadsheetFile rather than being
+ * read as plain text.
+ */
+export function looksLikeSpreadsheet(file: File): boolean {
+  return /\.xlsx?$/i.test(file.name);
+}
+
+/**
  * Reads the first sheet of a .xlsx/.xls file and returns column A as
  * newline-separated text, matching the "1 funcionalidade por linha" format
  * the comparison engine expects from a pasted/.csv/.txt input.

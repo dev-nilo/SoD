@@ -3,6 +3,20 @@ import { isHighConfidenceDivergence, matchFunctionality } from "@/lib/match-engi
 import type { ComparisonRow, FilterStatus, ImportaVarRow, VarCatalogItem } from "@/types";
 
 /**
+ * RM Functionality lines in raw input text: one per non-blank line.
+ */
+export function countFunctionalityLines(rawText: string): number {
+  return splitFunctionalityLines(rawText).length;
+}
+
+function splitFunctionalityLines(rawText: string): string[] {
+  return rawText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+}
+
+/**
  * Turns raw RM input text into Comparison Rows against a VAR Catalog. Pure:
  * no React, no fetch — the catalog and module are passed in, never fetched.
  */
@@ -11,10 +25,7 @@ export function buildComparisonRows(
   catalog: VarCatalogItem[],
   moduleId: string | number | null
 ): ComparisonRow[] {
-  const lines = rawText
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+  const lines = splitFunctionalityLines(rawText);
 
   return lines.map((line, index) => {
     const match = matchFunctionality(line, catalog, moduleId)!;
@@ -39,6 +50,14 @@ export function acceptHighConfidenceDivergences(rows: ComparisonRow[]): Comparis
 
 export function assignManualMatch(rows: ComparisonRow[], rowId: string, item: VarCatalogItem): ComparisonRow[] {
   return rows.map((r) => (r.rowId === rowId ? applyOverride(r, item, "manual") : r));
+}
+
+/**
+ * A session is resolved once every row has reached Exato — nothing left
+ * Divergente or Não Encontrado, and there's at least one row to show for it.
+ */
+export function selectIsSessionResolved(rows: ComparisonRow[]): boolean {
+  return rows.length > 0 && rows.every((r) => r.status === "Exato");
 }
 
 export function selectStats(rows: ComparisonRow[]) {

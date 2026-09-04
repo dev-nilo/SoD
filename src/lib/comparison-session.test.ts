@@ -5,8 +5,10 @@ import {
   acceptSuggestion,
   assignManualMatch,
   buildComparisonRows,
+  countFunctionalityLines,
   selectFilteredResults,
   selectImportaVarData,
+  selectIsSessionResolved,
   selectStats,
 } from "@/lib/comparison-session";
 import type { ComparisonRow, VarCatalogItem } from "@/types";
@@ -116,5 +118,31 @@ describe("selectImportaVarData", () => {
   it("falls back to a placeholder profile name when none is set", () => {
     const rows = [makeRow()];
     expect(selectImportaVarData(rows, "3129", "")[0].perfil).toBe("PERFIL_SEM_NOME");
+  });
+});
+
+describe("countFunctionalityLines", () => {
+  it("counts only non-blank lines", () => {
+    expect(countFunctionalityLines("[01] Cadastros\n\n  \n[01.01] Especificos")).toBe(2);
+  });
+
+  it("is zero for empty input", () => {
+    expect(countFunctionalityLines("")).toBe(0);
+  });
+});
+
+describe("selectIsSessionResolved", () => {
+  it("is false with no rows", () => {
+    expect(selectIsSessionResolved([])).toBe(false);
+  });
+
+  it("is false while any row is still Divergente or Não Encontrado", () => {
+    const rows = [makeRow({ status: "Exato" }), makeRow({ rowId: "b", status: "Divergente" })];
+    expect(selectIsSessionResolved(rows)).toBe(false);
+  });
+
+  it("is true once every row is Exato", () => {
+    const rows = [makeRow({ status: "Exato" }), makeRow({ rowId: "b", status: "Exato", override: "manual" })];
+    expect(selectIsSessionResolved(rows)).toBe(true);
   });
 });
