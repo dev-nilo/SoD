@@ -1,6 +1,8 @@
-import { applyOverride } from "@/lib/comparison-row";
+import { applyOverride, type OverrideMap } from "@/lib/comparison-row";
 import { isHighConfidenceDivergence, matchFunctionality } from "@/lib/match-engine";
 import type { ComparisonRow, FilterStatus, ImportaVarRow, VarCatalogItem } from "@/types";
+
+export type { OverrideMap } from "@/lib/comparison-row";
 
 /**
  * RM Functionality lines in raw input text: one per non-blank line.
@@ -28,7 +30,7 @@ export function buildComparisonRows(
   const lines = splitFunctionalityLines(rawText);
 
   return lines.map((line, index) => {
-    const match = matchFunctionality(line, catalog, moduleId)!;
+    const match = matchFunctionality(line, catalog, moduleId);
     return {
       rowId: `row-${index}`,
       originalIndex: index + 1,
@@ -38,18 +40,37 @@ export function buildComparisonRows(
   });
 }
 
-export function acceptSuggestion(rows: ComparisonRow[], rowId: string): ComparisonRow[] {
-  return rows.map((r) => (r.rowId === rowId && r.matchedItem ? applyOverride(r, r.matchedItem, "aprovado") : r));
+/**
+ * Folds a set of user decisions onto freshly computed rows. Rows are always
+ * rebuilt from scratch when the catalog or module filter changes; overrides
+ * live apart from them precisely so that rebuild never has to discard a
+ * decision already made — see OverrideMap in comparison-row.ts.
+ */
+export function applyOverrides(rows: ComparisonRow[], overrides: OverrideMap): ComparisonRow[] {
+  return rows.map((r) => {
+    const o = overrides[r.rowId];
+    return o ? applyOverride(r, o.item, o.kind) : r;
+  });
 }
 
-export function acceptHighConfidenceDivergences(rows: ComparisonRow[]): ComparisonRow[] {
-  return rows.map((r) =>
-    isHighConfidenceDivergence(r) && r.matchedItem ? applyOverride(r, r.matchedItem, "aprovado") : r
-  );
+export function acceptSuggestion(rows: ComparisonRow[], overrides: OverrideMap, rowId: string): OverrideMap {
+  const row = rows.find((r) => r.rowId === rowId);
+  if (!row?.matchedItem) return overrides;
+  return { ...overrides, [rowId]: { item: row.matchedItem, kind: "aprovado" } };
 }
 
-export function assignManualMatch(rows: ComparisonRow[], rowId: string, item: VarCatalogItem): ComparisonRow[] {
-  return rows.map((r) => (r.rowId === rowId ? applyOverride(r, item, "manual") : r));
+export function acceptHighConfidenceDivergences(rows: ComparisonRow[], overrides: OverrideMap): OverrideMap {
+  const next = { ...overrides };
+  for (const row of rows) {
+    if (isHighConfidenceDivergence(row) && row.matchedItem) {
+      next[row.rowId] = { item: row.matchedItem, kind: "aprovado" };
+    }
+  }
+  return next;
+}
+
+export function assignManualMatch(overrides: OverrideMap, rowId: string, item: VarCatalogItem): OverrideMap {
+  return { ...overrides, [rowId]: { item, kind: "manual" } };
 }
 
 /**

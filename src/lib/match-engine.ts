@@ -30,9 +30,8 @@ export function matchFunctionality(
   inputFunc: string,
   catalogList: VarCatalogItem[],
   targetModuleId: string | number | null
-): MatchResult | null {
+): MatchResult {
   const rawClean = inputFunc.trim();
-  if (!rawClean) return null;
 
   // Filtra por módulo se especificado, ou usa o catálogo completo
   const filteredCatalog = targetModuleId

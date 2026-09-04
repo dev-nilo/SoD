@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useVarCatalog } from "@/hooks/use-var-catalog";
 import * as ComparisonSession from "@/lib/comparison-session";
+import type { OverrideMap } from "@/lib/comparison-session";
 import type { ComparisonRow, FilterStatus, VarCatalogItem } from "@/types";
 
 /**
@@ -20,15 +21,18 @@ export function useProfileValidator() {
 
   // Sessão de comparação
   const [rawInputText, setRawInputText] = useState("");
-  const [results, setResults] = useState<ComparisonRow[]>([]);
+  // baseRows: matches recomputados sempre que módulo/catálogo mudam.
+  // overrides: decisões do usuário, mantidas à parte para nunca serem
+  // perdidas por um recompute (ex: adicionar item ao catálogo mid-sessão).
+  const [baseRows, setBaseRows] = useState<ComparisonRow[]>([]);
+  const [overrides, setOverrides] = useState<OverrideMap>({});
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const executeComparison = (textOverride?: string, moduleOverride?: string) => {
+  const executeComparison = (textOverride?: string) => {
     const text = textOverride ?? rawInputText;
-    const activeModule = moduleOverride ?? selectedModule;
-    const moduleId = activeModule === "0" ? null : activeModule;
-    setResults(ComparisonSession.buildComparisonRows(text, varCatalog, moduleId));
+    const moduleId = selectedModule === "0" ? null : selectedModule;
+    setBaseRows(ComparisonSession.buildComparisonRows(text, varCatalog, moduleId));
   };
 
   // Executa automaticamente quando módulo ou catálogo mudam
@@ -36,6 +40,11 @@ export function useProfileValidator() {
     executeComparison();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedModule, varCatalog]);
+
+  const results = useMemo(
+    () => ComparisonSession.applyOverrides(baseRows, overrides),
+    [baseRows, overrides]
+  );
 
   const stats = useMemo(() => ComparisonSession.selectStats(results), [results]);
 
@@ -50,22 +59,23 @@ export function useProfileValidator() {
   );
 
   const acceptSuggestion = (rowId: string) => {
-    setResults((prev) => ComparisonSession.acceptSuggestion(prev, rowId));
+    setOverrides((prev) => ComparisonSession.acceptSuggestion(baseRows, prev, rowId));
   };
 
   const acceptHighConfidenceDivergences = () => {
-    setResults((prev) => ComparisonSession.acceptHighConfidenceDivergences(prev));
+    setOverrides((prev) => ComparisonSession.acceptHighConfidenceDivergences(baseRows, prev));
   };
 
   const assignManualMatch = (rowId: string, item: VarCatalogItem) => {
-    setResults((prev) => ComparisonSession.assignManualMatch(prev, rowId, item));
+    setOverrides((prev) => ComparisonSession.assignManualMatch(prev, rowId, item));
   };
 
   const resetFlow = () => {
     setProfileId("");
     setProfileCode("");
     setRawInputText("");
-    setResults([]);
+    setBaseRows([]);
+    setOverrides({});
     setFilterStatus("ALL");
     setSearchQuery("");
   };

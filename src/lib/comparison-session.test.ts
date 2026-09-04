@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   acceptHighConfidenceDivergences,
   acceptSuggestion,
+  applyOverrides,
   assignManualMatch,
   buildComparisonRows,
   countFunctionalityLines,
@@ -48,19 +49,25 @@ describe("buildComparisonRows", () => {
 });
 
 describe("acceptSuggestion", () => {
-  it("only folds the matching row", () => {
+  it("only records an override for the matching row", () => {
     const rows = [makeRow({ rowId: "a" }), makeRow({ rowId: "b" })];
-    const result = acceptSuggestion(rows, "a");
+    const overrides = acceptSuggestion(rows, {}, "a");
+    const result = applyOverrides(rows, overrides);
 
     expect(result.find((r) => r.rowId === "a")?.status).toBe("Exato");
     expect(result.find((r) => r.rowId === "b")?.status).toBe("Divergente");
   });
+
+  it("is a no-op for a row with no matched item", () => {
+    const rows = [makeRow({ status: "Não Encontrado", matchedItem: null })];
+    expect(acceptSuggestion(rows, {}, "row-0")).toEqual({});
+  });
 });
 
 describe("acceptHighConfidenceDivergences", () => {
-  it("folds every eligible row in one pass", () => {
+  it("records an override for every eligible row in one pass", () => {
     const rows = [makeRow({ rowId: "a", confidence: 98 }), makeRow({ rowId: "b", confidence: 50 })];
-    const result = acceptHighConfidenceDivergences(rows);
+    const result = applyOverrides(rows, acceptHighConfidenceDivergences(rows, {}));
 
     expect(result.find((r) => r.rowId === "a")?.status).toBe("Exato");
     expect(result.find((r) => r.rowId === "b")?.status).toBe("Divergente");
@@ -70,11 +77,21 @@ describe("acceptHighConfidenceDivergences", () => {
 describe("assignManualMatch", () => {
   it("links a not-found row to a chosen catalog item", () => {
     const rows = [makeRow({ status: "Não Encontrado", matchedItem: null })];
-    const result = assignManualMatch(rows, "row-0", catalog[0]);
+    const result = applyOverrides(rows, assignManualMatch({}, "row-0", catalog[0]));
 
     expect(result[0].status).toBe("Exato");
     expect(result[0].matchedItem).toBe(catalog[0]);
     expect(result[0].override).toBe("manual");
+  });
+});
+
+describe("applyOverrides", () => {
+  it("survives rows being rebuilt, as long as rowIds line up", () => {
+    const rows = [makeRow({ rowId: "a", status: "Divergente" })];
+    const overrides = acceptSuggestion(rows, {}, "a");
+
+    const rebuiltRows = [makeRow({ rowId: "a", status: "Divergente", confidence: 80 })];
+    expect(applyOverrides(rebuiltRows, overrides)[0].status).toBe("Exato");
   });
 });
 
