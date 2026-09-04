@@ -45,15 +45,17 @@ export function FlowStepper({ steps }: { steps: FlowStep[] }) {
             </span>
 
             <span className="flex w-full items-center">
-              {index !== 0 && (
-                <span
-                  className={cn(
-                    "mr-2 h-px flex-1 min-w-6 transition-colors",
-                    steps[index - 1].state === "complete" ? "bg-success" : "bg-border"
-                  )}
-                  aria-hidden
-                />
-              )}
+              <span
+                className={cn(
+                  "mr-2 h-px flex-1 min-w-6 transition-colors",
+                  index === 0
+                    ? "bg-transparent"
+                    : steps[index - 1].state === "complete"
+                      ? "bg-success"
+                      : "bg-border"
+                )}
+                aria-hidden
+              />
 
               <span
                 className={cn(
@@ -70,15 +72,13 @@ export function FlowStepper({ steps }: { steps: FlowStep[] }) {
                 )}
               </span>
 
-              {!isLast && (
-                <span
-                  className={cn(
-                    "ml-2 h-px flex-1 min-w-6 transition-colors",
-                    step.state === "complete" ? "bg-success" : "bg-border"
-                  )}
-                  aria-hidden
-                />
-              )}
+              <span
+                className={cn(
+                  "ml-2 h-px flex-1 min-w-6 transition-colors",
+                  isLast ? "bg-transparent" : step.state === "complete" ? "bg-success" : "bg-border"
+                )}
+                aria-hidden
+              />
             </span>
           </TabsTrigger>
         );
