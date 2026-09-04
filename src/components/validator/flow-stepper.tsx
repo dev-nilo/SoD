@@ -27,7 +27,7 @@ export function FlowStepper({ steps }: { steps: FlowStep[] }) {
             key={step.id}
             value={step.id}
             className={cn(
-              "flex min-w-0 flex-col items-stretch gap-2 whitespace-normal rounded-lg border-none bg-transparent px-2 py-1.5 text-left focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring data-[state=active]:border-transparent data-[state=active]:bg-transparent",
+              "flex min-w-0 flex-col items-center gap-2 whitespace-normal rounded-lg border-none bg-transparent px-2 py-1.5 text-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring data-[state=active]:border-transparent data-[state=active]:bg-transparent",
               isLast ? "shrink-0" : "flex-1"
             )}
           >
@@ -47,7 +47,17 @@ export function FlowStepper({ steps }: { steps: FlowStep[] }) {
               )}
             </span>
 
-            <span className="flex items-center">
+            <span className="flex w-full items-center">
+              {index !== 0 && (
+                <span
+                  className={cn(
+                    "mr-2 h-px flex-1 min-w-6 transition-colors",
+                    steps[index - 1].state === "complete" ? "bg-success" : "bg-border"
+                  )}
+                  aria-hidden
+                />
+              )}
+
               <span
                 className={cn(
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-colors",
