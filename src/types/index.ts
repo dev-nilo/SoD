@@ -37,3 +37,21 @@ export interface ModuleOption {
 }
 
 export type FilterStatus = "ALL" | MatchStatus;
+
+export type SodRiskKind = "funcao" | "critico";
+
+export interface SodRisk {
+  id: string;
+  kind: SodRiskKind;
+  description: string;
+  criticality: number;
+}
+
+export interface SodActivity {
+  id: number;
+  name: string;
+  functionalityIds: number[];
+}
+
+/** riskId -> activity ids curated as jointly configuring that risk. */
+export type SodRiskMappings = Record<string, number[]>;

@@ -1,101 +1,195 @@
 "use client";
 
-import { useState } from "react";
-import { FileText, PlusCircle, ShieldAlert, UserCog } from "lucide-react";
+import { AlertCircle, Check, Save, Search, ShieldAlert } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useSodCuration } from "@/hooks/use-sod-curation";
 import { cn } from "@/lib/utils";
+import type { SodCurationFilter } from "@/lib/sod-curation";
 
-type SodScenario = "manutencao" | "criacao";
+const FILTERS: { value: SodCurationFilter; label: string }[] = [
+  { value: "ALL", label: "Todos" },
+  { value: "Pendente", label: "Pendentes" },
+  { value: "Mapeado", label: "Mapeados" },
+];
+
+const KIND_LABEL: Record<string, string> = {
+  funcao: "SoD",
+  critico: "Crítico",
+};
 
 export function SodAnalyzerTab() {
-  const [scenario, setScenario] = useState<SodScenario>("manutencao");
-  const [file, setFile] = useState<File | null>(null);
-  const [ticketNumber, setTicketNumber] = useState("");
+  const curation = useSodCuration();
+
+  if (curation.loading) {
+    return (
+      <Card>
+        <CardContent className="py-16 text-center text-sm text-muted-foreground">
+          Carregando riscos de SoD...
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Analisador SoD</CardTitle>
-        <CardDescription>Detecte conflitos de Segregação de Função na matriz de riscos TOTVS.</CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <Label>1. Cenário de Análise</Label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setScenario("manutencao")}
-              className={cn(
-                "flex items-center justify-center gap-2 rounded-lg border p-3 text-sm font-medium transition-colors",
-                scenario === "manutencao"
-                  ? "border-foreground/40 bg-muted text-foreground"
-                  : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
-              )}
-            >
-              <UserCog className="w-4 h-4" />
-              Manutenção
-            </button>
-            <button
-              type="button"
-              onClick={() => setScenario("criacao")}
-              className={cn(
-                "flex items-center justify-center gap-2 rounded-lg border p-3 text-sm font-medium transition-colors",
-                scenario === "criacao"
-                  ? "border-foreground/40 bg-muted text-foreground"
-                  : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
-              )}
-            >
-              <PlusCircle className="w-4 h-4" />
-              Criação
-            </button>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-primary" />
+            Curadoria da Matriz de Riscos SoD
+          </CardTitle>
+          <CardDescription>
+            Para cada risco, selecione as atividades do sistema que, combinadas, o configuram. Essa matriz é o que
+            vai faltando para a análise automática de conflitos funcionar — ainda não existe pronta.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4 text-sm">
+            <Badge variant="success">{curation.stats.mapped} mapeados</Badge>
+            <Badge variant="warning">{curation.stats.pending} pendentes</Badge>
+            <span className="text-muted-foreground text-xs">de {curation.stats.total} riscos</span>
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        <div className="space-y-2">
-          <Label>2. Matriz de Risco</Label>
-          <label className="flex flex-col items-center justify-center border-2 border-dashed border-border hover:border-foreground/30 rounded-xl p-6 cursor-pointer hover:bg-accent transition-colors text-center">
-            <FileText className="w-8 h-8 text-muted-foreground" />
-            <span className="text-xs font-medium text-foreground mt-2">
-              {file ? file.name : "Clique ou arraste o arquivo"}
-            </span>
-            <span className="text-[10px] text-muted-foreground">.xlsx, .xls ou .pdf</span>
-            <input
-              type="file"
-              accept=".xlsx,.xls,.pdf"
-              className="hidden"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            />
-          </label>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <Card className="lg:col-span-2 overflow-hidden flex flex-col">
+          <CardHeader className="space-y-3 pb-3">
+            <div className="relative">
+              <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-2.5" />
+              <Input
+                value={curation.riskSearchQuery}
+                onChange={(e) => curation.setRiskSearchQuery(e.target.value)}
+                placeholder="Buscar por código ou descrição..."
+                className="pl-9 h-9 text-sm"
+              />
+            </div>
+            <div className="flex items-center gap-1 bg-background p-1 rounded-lg border border-border text-sm w-fit">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.value}
+                  onClick={() => curation.setFilterStatus(f.value)}
+                  className={cn(
+                    "px-2.5 py-1 rounded-md transition-colors text-xs",
+                    curation.filterStatus === f.value
+                      ? "bg-secondary text-secondary-foreground font-medium"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </CardHeader>
 
-        <div className="space-y-2">
-          <Label htmlFor="ticket">
-            3. Nº do Chamado <span className="text-muted-foreground font-normal">(opcional — usado no e-mail)</span>
-          </Label>
-          <Input
-            id="ticket"
-            value={ticketNumber}
-            onChange={(e) => setTicketNumber(e.target.value)}
-            placeholder="Ex: 0001234"
-            className="max-w-xs font-mono"
-          />
-        </div>
+          <CardContent className="p-0 flex-1 overflow-y-auto max-h-[520px] divide-y divide-border">
+            {curation.filteredRisks.length === 0 ? (
+              <p className="p-6 text-center text-sm text-muted-foreground">Nenhum risco encontrado.</p>
+            ) : (
+              curation.filteredRisks.map((risk) => {
+                const isMapped = (curation.mappings[risk.id]?.length ?? 0) > 0;
+                const isSelected = curation.selectedRisk?.id === risk.id;
+                return (
+                  <button
+                    key={risk.id}
+                    onClick={() => curation.selectRisk(risk.id)}
+                    className={cn(
+                      "w-full text-left p-3 transition-colors hover:bg-accent",
+                      isSelected && "bg-accent"
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-semibold text-foreground">{risk.id}</span>
+                      <Badge variant="outline">{KIND_LABEL[risk.kind] ?? risk.kind}</Badge>
+                      {isMapped ? (
+                        <Check className="w-3.5 h-3.5 text-success ml-auto shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-3.5 h-3.5 text-warning ml-auto shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{risk.description}</p>
+                  </button>
+                );
+              })
+            )}
+          </CardContent>
+        </Card>
 
-        <div className="flex flex-col items-center gap-2 pt-2 border-t border-border">
-          <Button disabled className="mt-4">
-            <ShieldAlert className="w-3.5 h-3.5" />
-            Analisar SoD
-          </Button>
-          <p className="text-xs text-muted-foreground text-center">
-            Em desenvolvimento — aguardando uma matriz de risco de exemplo para implementar a análise de conflitos.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+        <Card className="lg:col-span-3 flex flex-col">
+          {!curation.selectedRisk ? (
+            <CardContent className="flex-1 flex items-center justify-center py-16 text-sm text-muted-foreground">
+              Selecione um risco à esquerda para mapear suas atividades.
+            </CardContent>
+          ) : (
+            <>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-sm font-semibold text-foreground">{curation.selectedRisk.id}</span>
+                  <Badge variant="outline">{KIND_LABEL[curation.selectedRisk.kind] ?? curation.selectedRisk.kind}</Badge>
+                </div>
+                <CardDescription>{curation.selectedRisk.description}</CardDescription>
+              </CardHeader>
+
+              <CardContent className="space-y-3 flex-1 flex flex-col min-h-0">
+                <div className="relative">
+                  <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-2.5" />
+                  <Input
+                    value={curation.activitySearchQuery}
+                    onChange={(e) => curation.setActivitySearchQuery(e.target.value)}
+                    placeholder="Buscar atividade..."
+                    className="pl-9 h-9 text-sm"
+                  />
+                </div>
+
+                <div className="flex-1 overflow-y-auto max-h-[280px] border border-border rounded-lg divide-y divide-border">
+                  {curation.filteredActivities.map((activity) => {
+                    const checked = curation.draftActivityIds.includes(activity.id);
+                    return (
+                      <label
+                        key={activity.id}
+                        className={cn(
+                          "flex items-center gap-2.5 p-2.5 text-sm cursor-pointer hover:bg-accent transition-colors",
+                          checked && "bg-accent"
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => curation.toggleDraftActivity(activity.id)}
+                          className="shrink-0"
+                        />
+                        <span className="text-foreground flex-1">{activity.name}</span>
+                        <span className="text-[10px] text-muted-foreground shrink-0">
+                          {activity.functionalityIds.length} func.
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+
+                <div className="rounded-lg bg-muted/40 border border-border p-3 space-y-1.5">
+                  <p className="text-xs font-semibold text-foreground">
+                    {curation.draftActivityIds.length} atividade(s) selecionada(s) · implicam{" "}
+                    {curation.impliedFunctionalityIds.length} funcionalidade(s) do VAR
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Um perfil que possua todas essas funcionalidades caracteriza o risco {curation.selectedRisk.id}.
+                  </p>
+                </div>
+
+                <Button onClick={curation.saveMapping} disabled={curation.saving} className="self-end">
+                  <Save className="w-3.5 h-3.5" />
+                  {curation.saving ? "Salvando..." : "Salvar Mapeamento"}
+                </Button>
+              </CardContent>
+            </>
+          )}
+        </Card>
+      </div>
+    </div>
   );
 }
