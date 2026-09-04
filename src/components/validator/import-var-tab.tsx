@@ -6,7 +6,14 @@ import { Check, CheckCircle2, Copy, Download, RotateCcw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { buildImportaVarRows, copyToClipboard } from "@/lib/csv-export";
 import type { ImportaVarRow } from "@/types";
 
@@ -17,7 +24,12 @@ interface ImportVarTabProps {
   onFinish: () => void;
 }
 
-export function ImportVarTab({ importaVarData, onExportImportaVar, hasExported, onFinish }: ImportVarTabProps) {
+export function ImportVarTab({
+  importaVarData,
+  onExportImportaVar,
+  hasExported,
+  onFinish,
+}: ImportVarTabProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -35,12 +47,7 @@ export function ImportVarTab({ importaVarData, onExportImportaVar, hasExported, 
         <div>
           <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
             Planilha de Carga do VAR
-            <Badge variant="success">{importaVarData.length} itens vinculados com sucesso</Badge>
           </h3>
-          <p className="text-xs text-muted-foreground mt-1">
-            Estrutura pronta nos padrões da aba <strong className="text-foreground">Importa VAR</strong> (Colunas:
-            perfil, funcionalidade id, funcionalidade).
-          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -60,7 +67,7 @@ export function ImportVarTab({ importaVarData, onExportImportaVar, hasExported, 
 
           <Button onClick={onExportImportaVar}>
             <Download className="w-3.5 h-3.5" />
-            Baixar Arquivo .CSV
+            Baixar Arquivo .XLSX
           </Button>
         </div>
       </div>
@@ -78,9 +85,15 @@ export function ImportVarTab({ importaVarData, onExportImportaVar, hasExported, 
             <TableBody className="font-mono text-[12px]">
               {importaVarData.map((row, idx) => (
                 <TableRow key={idx}>
-                  <TableCell className="font-semibold text-foreground">{row.perfil}</TableCell>
-                  <TableCell className="text-foreground font-medium">{row.funcionalidadeId}</TableCell>
-                  <TableCell className="text-foreground">{row.funcionalidade}</TableCell>
+                  <TableCell className="font-semibold text-foreground">
+                    {row.perfil}
+                  </TableCell>
+                  <TableCell className="text-foreground font-medium">
+                    {row.funcionalidadeId}
+                  </TableCell>
+                  <TableCell className="text-foreground">
+                    {row.funcionalidade}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

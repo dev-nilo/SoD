@@ -39,5 +39,3 @@ export interface ModuleOption {
 }
 
 export type FilterStatus = "ALL" | MatchStatus;
-
-export type ExportType = "importa_var" | "analise";

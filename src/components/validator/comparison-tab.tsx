@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check, CheckCheck, Download, Search } from "lucide-react";
+import { ArrowRight, Check, CheckCheck, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,7 +21,6 @@ interface ComparisonTabProps {
   onAcceptSuggestion: (rowId: string) => void;
   onAcceptHighConfidenceDivergences: () => void;
   onOpenManualSelect: (row: ComparisonRow) => void;
-  onExportAnalise: () => void;
   onGoToExport: () => void;
 }
 
@@ -43,7 +42,6 @@ export function ComparisonTab({
   onAcceptSuggestion,
   onAcceptHighConfidenceDivergences,
   onOpenManualSelect,
-  onExportAnalise,
   onGoToExport,
 }: ComparisonTabProps) {
   const highConfidenceCount = results.filter(
@@ -92,11 +90,6 @@ export function ComparisonTab({
               Aceitar Alta Confiança ({highConfidenceCount})
             </Button>
           )}
-
-          <Button variant="secondary" onClick={onExportAnalise}>
-            <Download className="w-3.5 h-3.5" />
-            Exportar Análise (.csv)
-          </Button>
 
           <Button onClick={onGoToExport}>
             Ir para Exportar

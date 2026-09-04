@@ -32,9 +32,8 @@ import { ProfileSettingsBar } from "@/components/validator/profile-settings-bar"
 import type { AppSection } from "@/components/validator/section-nav";
 import { SiteHeader } from "@/components/validator/site-header";
 import { SodAnalyzerTab } from "@/components/validator/sod-analyzer-tab";
-import { StatsCards } from "@/components/validator/stats-cards";
 import { useProfileValidator } from "@/hooks/use-profile-validator";
-import { exportToCSV } from "@/lib/csv-export";
+import { exportToXLSX } from "@/lib/csv-export";
 import { parseSpreadsheetFile } from "@/lib/xlsx-import";
 import type { ComparisonRow } from "@/types";
 
@@ -60,13 +59,12 @@ export function ValidatorApp() {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [hasExported, setHasExported] = useState(false);
 
-  const handleExport = (type: "importa_var" | "analise") => {
-    exportToCSV(type, {
-      results: validator.results,
+  const handleExport = async () => {
+    await exportToXLSX({
       importaVarData: validator.importaVarData,
       profileCode: validator.profileCode,
     });
-    if (type === "importa_var") setHasExported(true);
+    setHasExported(true);
   };
 
   const goToComparacao = (textOverride?: string) => {
@@ -135,14 +133,12 @@ export function ValidatorApp() {
       label: "Comparação",
       icon: FileCheck,
       state: stepState("comparacao", comparacaoComplete),
-      badge: validator.results.length,
     },
     {
       id: "exportar",
       label: "Exportar",
       icon: FileSpreadsheet,
       state: stepState("exportar", exportarComplete),
-      badge: validator.importaVarData.length,
     },
   ];
 
@@ -167,60 +163,57 @@ export function ValidatorApp() {
               <FlowStepper steps={steps} />
             </div>
 
-            {activeTab !== "entrada" && <StatsCards stats={validator.stats} />}
-
             <TabsContent value="entrada" className="space-y-6">
-                <div className="space-y-3">
-                  <div>
-                    <h2 className="text-sm font-semibold text-foreground">
-                      Configuração do Perfil
-                    </h2>
-                  </div>
-
-                  <ProfileSettingsBar
-                    profileCode={validator.profileCode}
-                    onProfileCodeChange={validator.setProfileCode}
-                    selectedModule={validator.selectedModule}
-                    onSelectedModuleChange={validator.setSelectedModule}
-                    availableModules={validator.availableModules}
-                    onContinue={() => goToComparacao()}
-                  />
+              <div className="space-y-3">
+                <div>
+                  <h2 className="text-sm font-semibold text-foreground">
+                    Configuração do Perfil
+                  </h2>
                 </div>
 
-                <InputTab
-                  rawInputText={validator.rawInputText}
-                  onRawInputTextChange={validator.setRawInputText}
-                  onFileUpload={handleFileUpload}
+                <ProfileSettingsBar
+                  profileCode={validator.profileCode}
+                  onProfileCodeChange={validator.setProfileCode}
+                  selectedModule={validator.selectedModule}
+                  onSelectedModuleChange={validator.setSelectedModule}
+                  availableModules={validator.availableModules}
+                  onContinue={() => goToComparacao()}
                 />
-              </TabsContent>
+              </div>
 
-              <TabsContent value="comparacao">
-                <ComparisonTab
-                  results={validator.results}
-                  filteredResults={validator.filteredResults}
-                  filterStatus={validator.filterStatus}
-                  onFilterStatusChange={validator.setFilterStatus}
-                  searchQuery={validator.searchQuery}
-                  onSearchQueryChange={validator.setSearchQuery}
-                  stats={validator.stats}
-                  onAcceptSuggestion={validator.acceptSuggestion}
-                  onAcceptHighConfidenceDivergences={
-                    validator.acceptHighConfidenceDivergences
-                  }
-                  onOpenManualSelect={setManualSelectRow}
-                  onExportAnalise={() => handleExport("analise")}
-                  onGoToExport={() => setActiveTab("exportar")}
-                />
-              </TabsContent>
+              <InputTab
+                rawInputText={validator.rawInputText}
+                onRawInputTextChange={validator.setRawInputText}
+                onFileUpload={handleFileUpload}
+              />
+            </TabsContent>
 
-              <TabsContent value="exportar">
-                <ImportVarTab
-                  importaVarData={validator.importaVarData}
-                  onExportImportaVar={() => handleExport("importa_var")}
-                  hasExported={hasExported}
-                  onFinish={handleFinish}
-                />
-              </TabsContent>
+            <TabsContent value="comparacao">
+              <ComparisonTab
+                results={validator.results}
+                filteredResults={validator.filteredResults}
+                filterStatus={validator.filterStatus}
+                onFilterStatusChange={validator.setFilterStatus}
+                searchQuery={validator.searchQuery}
+                onSearchQueryChange={validator.setSearchQuery}
+                stats={validator.stats}
+                onAcceptSuggestion={validator.acceptSuggestion}
+                onAcceptHighConfidenceDivergences={
+                  validator.acceptHighConfidenceDivergences
+                }
+                onOpenManualSelect={setManualSelectRow}
+                onGoToExport={() => setActiveTab("exportar")}
+              />
+            </TabsContent>
+
+            <TabsContent value="exportar">
+              <ImportVarTab
+                importaVarData={validator.importaVarData}
+                onExportImportaVar={handleExport}
+                hasExported={hasExported}
+                onFinish={handleFinish}
+              />
+            </TabsContent>
           </Tabs>
         )}
 
