@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { buildImportaVarRows, copyToClipboard } from "@/lib/csv-export";
+import { IMPORTA_VAR_COLUMNS, buildImportaVarRows, copyToClipboard } from "@/lib/csv-export";
 import type { ImportaVarRow } from "@/types";
 
 interface ImportVarTabProps {
@@ -23,6 +23,20 @@ interface ImportVarTabProps {
   hasExported: boolean;
   onFinish: () => void;
 }
+
+const HEADER_CLASS: Record<keyof ImportaVarRow, string> = {
+  id: "w-24",
+  perfil: "w-44",
+  funcionalidadeId: "w-36",
+  funcionalidade: "",
+};
+
+const CELL_CLASS: Record<keyof ImportaVarRow, string> = {
+  id: "text-foreground font-medium",
+  perfil: "font-semibold text-foreground",
+  funcionalidadeId: "text-foreground font-medium",
+  funcionalidade: "text-foreground",
+};
 
 export function ImportVarTab({
   importaVarData,
@@ -77,27 +91,21 @@ export function ImportVarTab({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-24">id</TableHead>
-                <TableHead className="w-44">perfil</TableHead>
-                <TableHead className="w-36">funcionalidade id</TableHead>
-                <TableHead>funcionalidade</TableHead>
+                {IMPORTA_VAR_COLUMNS.map((col) => (
+                  <TableHead key={col.key} className={HEADER_CLASS[col.key]}>
+                    {col.header}
+                  </TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody className="font-mono text-[12px]">
               {importaVarData.map((row, idx) => (
                 <TableRow key={idx}>
-                  <TableCell className="text-foreground font-medium">
-                    {row.id}
-                  </TableCell>
-                  <TableCell className="font-semibold text-foreground">
-                    {row.perfil}
-                  </TableCell>
-                  <TableCell className="text-foreground font-medium">
-                    {row.funcionalidadeId}
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    {row.funcionalidade}
-                  </TableCell>
+                  {IMPORTA_VAR_COLUMNS.map((col) => (
+                    <TableCell key={col.key} className={CELL_CLASS[col.key]}>
+                      {row[col.key]}
+                    </TableCell>
+                  ))}
                 </TableRow>
               ))}
             </TableBody>
