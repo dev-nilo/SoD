@@ -172,6 +172,8 @@ export function ValidatorApp() {
                 </div>
 
                 <ProfileSettingsBar
+                  profileId={validator.profileId}
+                  onProfileIdChange={validator.setProfileId}
                   profileCode={validator.profileCode}
                   onProfileCodeChange={validator.setProfileCode}
                   selectedModule={validator.selectedModule}

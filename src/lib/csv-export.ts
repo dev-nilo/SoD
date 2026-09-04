@@ -1,11 +1,11 @@
 import type { ImportaVarRow } from "@/types";
 
-const IMPORTA_VAR_HEADERS = ["perfil", "funcionalidade id", "funcionalidade"];
+const IMPORTA_VAR_HEADERS = ["id", "perfil", "funcionalidade id", "funcionalidade"];
 
 export function buildImportaVarRows(importaVarData: ImportaVarRow[]): string[][] {
   return [
     IMPORTA_VAR_HEADERS,
-    ...importaVarData.map((row) => [row.perfil, String(row.funcionalidadeId), row.funcionalidade]),
+    ...importaVarData.map((row) => [row.id, row.perfil, String(row.funcionalidadeId), row.funcionalidade]),
   ];
 }
 

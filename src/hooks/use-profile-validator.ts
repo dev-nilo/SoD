@@ -6,6 +6,7 @@ import type { ComparisonRow, FilterStatus, ImportaVarRow, ModuleOption, VarCatal
 
 export function useProfileValidator() {
   // Configuração do perfil
+  const [profileId, setProfileId] = useState("");
   const [profileCode, setProfileCode] = useState("");
   const [selectedModule, setSelectedModule] = useState("0");
 
@@ -98,13 +99,14 @@ export function useProfileValidator() {
         const matched = item.acceptedOverride?.matchedItem ?? item.matchedItem;
         if (!matched) return null;
         return {
+          id: profileId,
           perfil: profileCode || "PERFIL_SEM_NOME",
           funcionalidadeId: matched.id,
           funcionalidade: matched.name,
         };
       })
       .filter((row): row is ImportaVarRow => row !== null);
-  }, [results, profileCode]);
+  }, [results, profileId, profileCode]);
 
   const acceptSuggestion = (rowId: string) => {
     setResults((prev) =>
@@ -121,6 +123,7 @@ export function useProfileValidator() {
   };
 
   const resetFlow = () => {
+    setProfileId("");
     setProfileCode("");
     setRawInputText("");
     setResults([]);
@@ -176,6 +179,8 @@ export function useProfileValidator() {
   };
 
   return {
+    profileId,
+    setProfileId,
     profileCode,
     setProfileCode,
     selectedModule,

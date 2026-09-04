@@ -77,6 +77,7 @@ export function ImportVarTab({
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-24">id</TableHead>
                 <TableHead className="w-44">perfil</TableHead>
                 <TableHead className="w-36">funcionalidade id</TableHead>
                 <TableHead>funcionalidade</TableHead>
@@ -85,6 +86,9 @@ export function ImportVarTab({
             <TableBody className="font-mono text-[12px]">
               {importaVarData.map((row, idx) => (
                 <TableRow key={idx}>
+                  <TableCell className="text-foreground font-medium">
+                    {row.id}
+                  </TableCell>
                   <TableCell className="font-semibold text-foreground">
                     {row.perfil}
                   </TableCell>
