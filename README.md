@@ -1,5 +1,7 @@
 # SoD — Validador de Perfil & Gerador de Importa VAR
 
+> **In English:** A Next.js app that reconciles permission profiles between the TOTVS RM ERP and the VAR catalog. It matches functionalities automatically (exact, code-normalized and fuzzy/Levenshtein), lets analysts fix the remaining links by hand, and exports a CSV for import into VAR. Built with Next.js, TypeScript, shadcn/ui, Drizzle ORM, PostgreSQL (Neon) and Vitest. **Live:** [sod-theta.vercel.app](https://sod-theta.vercel.app)
+
 Aplicação Next.js (App Router) + shadcn/ui para conciliação de funcionalidades entre o TOTVS RM e o catálogo do VAR, com matching automático (exato, normalizado por código e fuzzy/Levenshtein), edição manual de vínculos e exportação para CSV.
 
 ## Stack
