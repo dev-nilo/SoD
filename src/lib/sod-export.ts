@@ -1,4 +1,5 @@
 import { SCENARIO_LABEL, type SodScenario } from "@/lib/sod-notes";
+import { downloadWorkbook, safeFileSegment, type SheetData } from "@/lib/xlsx-export";
 import type { ProfileFunctionalityRow, TriggeredRisk } from "@/types";
 
 const KIND_LABEL: Record<string, string> = {
@@ -15,11 +16,6 @@ export interface SodExportInput {
   analyst: string;
   profileRows: ProfileFunctionalityRow[];
   triggeredRisks: TriggeredRisk[];
-}
-
-export interface SheetData {
-  name: string;
-  rows: (string | number)[][];
 }
 
 /**
@@ -75,15 +71,9 @@ export function buildSodWorkbookSheets(input: SodExportInput): SheetData[] {
 }
 
 export function sodExportFileName(perfil: string, isoDate: string): string {
-  const safe = perfil.replace(/[^A-Za-z0-9_-]+/g, "_").replace(/^_+|_+$/g, "") || "perfil";
-  return `Analise_SoD_${safe}_${isoDate}.xlsx`;
+  return `Analise_SoD_${safeFileSegment(perfil, "perfil")}_${isoDate}.xlsx`;
 }
 
 export async function exportSodAnalysisXlsx(input: SodExportInput, isoDate: string): Promise<void> {
-  const XLSX = await import("xlsx");
-  const workbook = XLSX.utils.book_new();
-  for (const sheet of buildSodWorkbookSheets(input)) {
-    XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(sheet.rows), sheet.name);
-  }
-  XLSX.writeFile(workbook, sodExportFileName(input.perfil, isoDate));
+  await downloadWorkbook(buildSodWorkbookSheets(input), sodExportFileName(input.perfil, isoDate));
 }
