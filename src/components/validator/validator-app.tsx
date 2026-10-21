@@ -32,10 +32,13 @@ import { ProfileSettingsBar } from "@/components/validator/profile-settings-bar"
 import type { AppSection } from "@/components/validator/section-nav";
 import { SiteHeader } from "@/components/validator/site-header";
 import { SodAnalyzerTab } from "@/components/validator/sod-analyzer-tab";
+import { useCurrentUser } from "@/components/auth/current-user-context";
 import { useProfileValidator } from "@/hooks/use-profile-validator";
 import { countFunctionalityLines, selectIsSessionResolved } from "@/lib/comparison-session";
 import { exportToXLSX } from "@/lib/csv-export";
 import { looksLikeXlsx, readTextFile } from "@/lib/file-import";
+import { reportActivity } from "@/lib/report-activity";
+import { can } from "@/lib/user-rules";
 import { parseSpreadsheetFile } from "@/lib/xlsx-import";
 import type { ComparisonRow } from "@/types";
 
@@ -53,6 +56,8 @@ const SECTION_ITEMS: {
 
 export function ValidatorApp() {
   const validator = useProfileValidator();
+  const user = useCurrentUser();
+  const canEditCatalog = can(user.role, "edit-catalog");
   const [section, setSection] = useState<AppSection>("validador");
   const [activeTab, setActiveTab] = useState<FlowTab>("entrada");
   const [manualSelectRow, setManualSelectRow] = useState<ComparisonRow | null>(
@@ -67,11 +72,22 @@ export function ValidatorApp() {
       profileCode: validator.profileCode,
     });
     setHasExported(true);
+    reportActivity(
+      "exportacao-importa-var",
+      `Exportou o Importa VAR do perfil ${validator.profileCode} (${validator.importaVarData.length} linhas)`,
+    );
   };
 
   const goToComparacao = (textOverride?: string) => {
+    const text = textOverride ?? validator.rawInputText;
     validator.executeComparison(textOverride);
     setActiveTab("comparacao");
+    const moduleName =
+      validator.availableModules.find((m) => m.id === validator.selectedModule)?.name ?? "todos os módulos";
+    reportActivity(
+      "comparacao-validador",
+      `Comparou o perfil ${validator.profileCode || "(sem código)"} — ${countFunctionalityLines(text)} funcionalidades, ${moduleName}`,
+    );
   };
 
   const applyUploadedText = (text: string) => {
@@ -232,7 +248,12 @@ export function ValidatorApp() {
           <div className="flex-1 overflow-y-auto p-4">
             <CatalogTab
               varCatalog={validator.varCatalog}
+              canEdit={canEditCatalog}
               onAddEntry={validator.addCatalogEntry}
+              onImportFile={validator.catalog.importCatalogFile}
+              importing={validator.catalog.importing}
+              importResult={validator.catalog.importResult}
+              importError={validator.catalog.importError}
             />
           </div>
         </SheetContent>

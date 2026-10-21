@@ -2,8 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { useCurrentUser } from "@/components/auth/current-user-context";
 import { useVarCatalog } from "@/hooks/use-var-catalog";
+import { copyToClipboard } from "@/lib/csv-export";
 import { loadResource } from "@/lib/async-resource";
+import { reportActivity } from "@/lib/report-activity";
+import { exportSodAnalysisXlsx } from "@/lib/sod-export";
+import { buildChamadoNote, buildEmailNote, NO_CONFLICT_NOTE, SCENARIO_LABEL, type SodScenario } from "@/lib/sod-notes";
 import { parseProfileReport } from "@/lib/profile-report-import";
 import { analyzeProfileRisks, matchProfileFunctionalities, selectRisksWithAddedFunctionality } from "@/lib/sod-analysis";
 import type { ProfileFunctionalityRow, SodActivity, SodRisk, SodRiskMappings } from "@/types";
@@ -47,6 +52,9 @@ export function useSodAnalysis() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [onlyAdded, setOnlyAdded] = useState(true);
+  const [cenario, setCenario] = useState<SodScenario>("manutencao");
+  const [ticket, setTicket] = useState("");
+  const user = useCurrentUser();
 
   const loadFile = async (file: File) => {
     setError(null);
@@ -54,6 +62,10 @@ export function useSodAnalysis() {
       const rows = await parseProfileReport(file);
       setProfileRows(rows);
       setFileName(file.name);
+      reportActivity(
+        "analise-sod",
+        `Analisou o perfil ${rows[0]?.perfil ?? file.name} (${rows.length} funcionalidades, ${SCENARIO_LABEL[cenario]})`
+      );
     } catch (err) {
       setProfileRows([]);
       setFileName(null);
@@ -71,10 +83,45 @@ export function useSodAnalysis() {
     [matchedFunctionalities, risks, activities, mappings]
   );
 
+  // Na criação de perfil tudo é novo, então o filtro "só adicionadas" não se aplica.
+  const filterOnlyAdded = cenario === "manutencao" && onlyAdded;
   const triggeredRisks = useMemo(
-    () => (onlyAdded ? selectRisksWithAddedFunctionality(allTriggeredRisks) : allTriggeredRisks),
-    [allTriggeredRisks, onlyAdded]
+    () => (filterOnlyAdded ? selectRisksWithAddedFunctionality(allTriggeredRisks) : allTriggeredRisks),
+    [allTriggeredRisks, filterOnlyAdded]
   );
+
+  const profileName = profileRows[0]?.perfil ?? null;
+  const modulo = [...new Set(profileRows.map((r) => r.sistema).filter(Boolean))].join(", ");
+
+  const noteInput = () => ({
+    date: new Date().toLocaleDateString("pt-BR"),
+    perfil: profileName ?? "",
+    modulo,
+    cenario,
+    ticket,
+    triggeredRisks,
+  });
+
+  const copyNote = async (kind: "chamado" | "email" | "aprovado") => {
+    const text =
+      kind === "aprovado"
+        ? NO_CONFLICT_NOTE
+        : kind === "chamado"
+          ? buildChamadoNote(noteInput())
+          : buildEmailNote(noteInput());
+    await copyToClipboard(text);
+  };
+
+  const exportXlsx = async () => {
+    await exportSodAnalysisXlsx(
+      { ...noteInput(), analyst: user.fullName, profileRows },
+      new Date().toISOString().slice(0, 10)
+    );
+    reportActivity(
+      "exportacao-sod",
+      `Exportou a análise SoD do perfil ${profileName ?? ""} (${triggeredRisks.length} combinações de risco)`
+    );
+  };
 
   const curatedRiskCount = risks.filter((r) => (mappings[r.id]?.length ?? 0) > 0).length;
 
@@ -91,7 +138,14 @@ export function useSodAnalysis() {
     error,
     loadFile,
     profileRows,
-    profileName: profileRows[0]?.perfil ?? null,
+    profileName,
+    modulo,
+    cenario,
+    setCenario,
+    ticket,
+    setTicket,
+    copyNote,
+    exportXlsx,
     addedCount: profileRows.filter((r) => r.status === "Adicionado").length,
     unmatchedCount: profileRows.length - matchedFunctionalities.length,
     triggeredRisks,

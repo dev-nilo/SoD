@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getDb } from "@/db";
 import { sodRiskActivities } from "@/db/schema";
+import { logActivity } from "@/lib/server/activity";
+import { requireUser } from "@/lib/server/session";
 
 /**
  * Replaces the full set of activities curated for one risk. The curator
@@ -10,6 +12,9 @@ import { sodRiskActivities } from "@/db/schema";
  * add/remove, and the set per risk is small (a handful of activities).
  */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ riskId: string }> }) {
+  const guard = await requireUser("edit-sod-curation");
+  if (guard.response) return guard.response;
+
   const { riskId } = await params;
   const body = (await request.json()) as { activityIds?: unknown };
 
@@ -25,5 +30,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     await db.insert(sodRiskActivities).values(activityIds.map((activityId) => ({ riskId, activityId })));
   }
 
+  await logActivity(
+    guard.user.id,
+    "curadoria-sod",
+    `Mapeou o risco ${riskId} com ${activityIds.length} atividade(s): ${activityIds.join(", ") || "nenhuma"}`
+  );
   return NextResponse.json({ riskId, activityIds });
 }

@@ -4,6 +4,7 @@ import { Database, Workflow } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { UserMenu } from "@/components/auth/user-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   SectionNav,
@@ -55,6 +56,7 @@ export function SiteHeader({
         <Separator orientation="vertical" className="h-6 hidden sm:block" />
 
         <ThemeToggle />
+        <UserMenu />
       </div>
     </header>
   );

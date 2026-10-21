@@ -17,7 +17,8 @@ export function useProfileValidator() {
   const [profileCode, setProfileCode] = useState("");
   const [selectedModule, setSelectedModule] = useState("0");
 
-  const { varCatalog, availableModules, addCatalogEntry } = useVarCatalog();
+  const catalog = useVarCatalog();
+  const { varCatalog, availableModules, addCatalogEntry } = catalog;
 
   // Sessão de comparação
   const [rawInputText, setRawInputText] = useState("");
@@ -90,6 +91,7 @@ export function useProfileValidator() {
     availableModules,
     varCatalog,
     addCatalogEntry,
+    catalog,
     rawInputText,
     setRawInputText,
     results,

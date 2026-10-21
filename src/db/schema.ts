@@ -1,4 +1,4 @@
-import { integer, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, primaryKey, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 export const modules = pgTable("modules", {
   id: integer("id").primaryKey(),
@@ -66,3 +66,32 @@ export const sodRiskActivities = pgTable(
   },
   (t) => [primaryKey({ columns: [t.riskId, t.activityId] })]
 );
+
+/**
+ * Quem pode entrar no app. Sem auto-cadastro: um admin cria cada conta, e
+ * desativar (active = false) bloqueia o login sem apagar o histórico.
+ */
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  fullName: text("full_name").notNull(),
+  passwordHash: text("password_hash").notNull(),
+  role: text("role").notNull().default("user"), // "admin" | "user"
+  active: boolean("active").notNull().default(true),
+  lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * Trilha de auditoria: o que cada usuário fez (login, upload da base VAR,
+ * comparações, exportações, análises SoD, curadoria, gestão de usuários).
+ */
+export const activityLog = pgTable("activity_log", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  kind: text("kind").notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});

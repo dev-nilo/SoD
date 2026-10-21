@@ -4,9 +4,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { modules, varCatalogItems } from "@/db/schema";
 import { toAvailableModules } from "@/lib/catalog-modules";
+import { logActivity } from "@/lib/server/activity";
+import { requireUser } from "@/lib/server/session";
 import type { VarCatalogItem } from "@/types";
 
 export async function GET() {
+  const guard = await requireUser();
+  if (guard.response) return guard.response;
+
   const db = getDb();
 
   const [items, moduleRows] = await Promise.all([
@@ -27,6 +32,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const guard = await requireUser("edit-catalog");
+  if (guard.response) return guard.response;
+
   const body = (await request.json()) as Partial<VarCatalogItem>;
 
   const id = Number(body.id);
@@ -53,6 +61,8 @@ export async function POST(request: NextRequest) {
       target: varCatalogItems.id,
       set: { code: sql`excluded.code`, name: sql`excluded.name`, moduleId: sql`excluded.module_id` },
     });
+
+  await logActivity(guard.user.id, "edicao-catalogo", `Salvou a funcionalidade ${id} — ${name}`);
 
   const saved: VarCatalogItem = { id, code, name, moduleId, moduleName };
   return NextResponse.json(saved, { status: 201 });
